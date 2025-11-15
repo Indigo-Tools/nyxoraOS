@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cursorDot = document.getElementById('custom-cursor-dot');
     const cursorOutline = document.getElementById('custom-cursor-outline');
     // Define all elements that should trigger the interaction state
-    const interactiveElements = 'button, a, input, textarea, .window-action-btn, .dock-icon, .app-item, .context-menu-item, .email-item, .install-button, .translator-lang-select';
+    const interactiveElements = 'button, a, input, textarea, .window-action-btn, .dock-icon, .app-item, .context-menu-item, .email-item, .install-button, .translator-lang-select, select';
 
     // --- CURSOR FIX ---
     // mousemove now handles positioning AND interaction state.
@@ -308,14 +308,18 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     desktopContainer.appendChild(contextMenu);
 
-    // --- QUICK SETTINGS REMOVAL ---
-    // References to quickSettings and its statusButton listener are removed.
+    
+    // --- QUICK SETTINGS FIX ---
+    // This function is now correctly implemented
     function hideAllOverlays(event) {
         if (event && startButton.contains(event.target)) return;
         if (event && appLauncher.contains(event.target)) return;
         appLauncher.classList.add('hidden');
 
-        // statusButton/quickSettings check REMOVED
+        // Add these lines back in
+        if (event && statusButton.contains(event.target)) return;
+        if (event && quickSettings.contains(event.target)) return;
+        quickSettings.classList.add('hidden');
 
         if (event && contextMenu.contains(event.target)) return;
         contextMenu.classList.add('hidden');
@@ -323,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startButton.addEventListener('click', (event) => {
         event.stopPropagation();
-        quickSettings.classList.add('hidden'); // REMOVED
+        quickSettings.classList.add('hidden'); // This is correct, start button closes QS
         contextMenu.classList.add('hidden');
         renderInstalledAppsInLauncher();
         appLauncher.classList.toggle('hidden');
@@ -331,11 +335,19 @@ document.addEventListener('DOMContentLoaded', () => {
         filterAppLauncher('');
     });
 
-    // statusButton click listener REMOVED
+    // --- QUICK SETTINGS FIX ---
+    // Added the click listener for the status button
+    statusButton.addEventListener('click', (event) => {
+        event.stopPropagation();
+        appLauncher.classList.add('hidden');
+        contextMenu.classList.add('hidden');
+        quickSettings.classList.toggle('hidden');
+    });
+
 
     document.addEventListener('click', hideAllOverlays);
     appLauncher.addEventListener('click', (event) => event.stopPropagation());
-    quickSettings.addEventListener('click', (event) => event.stopPropagation()); // REMOVED
+    quickSettings.addEventListener('click', (event) => event.stopPropagation()); // This is correct
 
     function filterAppLauncher(searchTerm) {
         const query = searchTerm.toLowerCase();
@@ -1005,7 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'weather', name: 'Weather', category: 'Utilities', icon: 'fa-solid fa-cloud-sun', iconBg: '#fbbc05', price: 'Installed', description: 'Check the latest forecast.' },
         { id: 'files', name: 'Files', category: 'System', icon: 'fa-solid fa-folder', iconBg: '#5865F2', price: 'Installed', description: 'Browse your local files.' },
         { id: 'pictures', name: 'Pictures', category: 'Media', icon: 'fa-solid fa-images', iconBg: '#db4437', price: 'Installed', description: 'View your photos.' },
-        { id: 'gmail', name: 'Gmail', category: 'Communication', icon: 'fa-solid fa-envelope', iconBg: '#db4437', price: 'Installed', description: 'Connect your email.' },
+        { id: 'gmail', name: 'Mail', category: 'Communication', icon: 'fa-solid fa-envelope', iconBg: '#db4437', price: 'Installed', description: 'Connect your email.' },
         { id: 'browser', name: 'Nyxora Browser', category: 'Internet', icon: 'fa-solid fa-globe', iconBg: '#0f9d58', price: 'Installed', description: 'Fast, secure web browsing.' },
 
         { id: 'sound', name: 'Sound Control', category: 'System', icon: 'fa-solid fa-volume-high', iconBg: '#8e44ad', price: 'Free', description: 'Advanced audio mixing tools.' },

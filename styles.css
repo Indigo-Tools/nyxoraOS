@@ -363,8 +363,87 @@ button {
 }
 
 /* --- 5. Quick Settings Panel --- */
-/* REMOVED .quick-settings styles */
+.quick-settings {
+    position: absolute;
+    bottom: 70px;
+    right: 15px;
+    width: 320px;
+    background-color: var(--bg-glass-modal);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius-inner);
+    border: var(--glass-border);
+    padding: 16px;
+    z-index: 1001;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
 
+.slider-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.slider-control i {
+    color: var(--text-secondary);
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+input[type="range"] {
+    flex-grow: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--icon-bg-grey);
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--white);
+}
+
+.toggles {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.toggle-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    background: var(--icon-bg-grey);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-btn i {
+    font-size: 18px;
+}
+
+.toggle-btn.active {
+    background: var(--accent-blue);
+    color: var(--white);
+}
 
 /* --- 6. App Window Styles --- */
 .window {
@@ -1659,6 +1738,7 @@ input:checked+.slider:before {
     flex-shrink: 0;
 }
 
+/* --- TRANSLATOR FIX --- */
 .translator-lang-select {
     background-color: var(--icon-bg-grey);
     border: none;
@@ -1677,6 +1757,7 @@ input:checked+.slider:before {
     background-position: right 12px center;
     background-size: 18px;
 }
+
 
 .translator-swap-btn {
     background: transparent;
@@ -1742,6 +1823,131 @@ input:checked+.slider:before {
     background-color: var(--accent-bright-blue);
 }
 
+/* --- 12. Gmail App Styles (New) --- */
+.window[data-app-id="gmail"] .window-body {
+    padding: 0;
+    display: flex;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+.gmail-app {
+    display: flex;
+    width: 100%;
+    height: 100%;
+}
+
+.email-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+    background-color: var(--bg-glass-window);
+    border-right: var(--glass-border);
+    overflow-y: auto;
+    /* Changed padding */
+    padding: 0; 
+}
+
+.email-content {
+    flex-grow: 1;
+    background-color: var(--bg-dark);
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.email-list {
+    min-width: 260px; /* Ensure minimum width for the list */
+    /* Added to allow list to scroll independently */
+    max-height: calc(100% - 180px); /* Adjust based on account box height */
+    overflow-y: auto;
+}
+
+.email-item {
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+}
+
+.email-item.unread {
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.email-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.email-item.active {
+    background-color: var(--accent-blue);
+    color: var(--white);
+}
+.email-item.active .email-item-subject {
+    color: var(--white);
+}
+
+.email-item-sender {
+    font-size: 14px;
+    font-weight: 600;
+    color: inherit;
+    display: block;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.email-item-subject {
+    font-size: 13px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+}
+
+.email-content-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+}
+
+.content-subject {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.content-from {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.content-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    flex-grow: 1;
+    /* Add this to contain images/iframes */
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+.content-body * {
+    max-width: 100%;
+    height: auto;
+}
+
+
+.empty-state {
+    text-align: center;
+    color: var(--text-secondary);
+    margin: auto; /* Center it */
+}
+
+/* --- NEW GMAIL STYLES --- */
 .mail-account-box {
     padding: 15px;
     border-bottom: 1px solid var(--glass-border);
@@ -1810,103 +2016,6 @@ input:checked+.slider:before {
     text-align: center;
 }
 
-/* Ensure the content body doesn't break layout */
-.content-body {
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--text-dim);
-    flex-grow: 1;
-    /* Add this to contain images/iframes */
-    overflow-y: auto;
-    word-wrap: break-word;
-}
-.content-body * {
-    max-width: 100%;
-    height: auto;
-}
-
-.mail-account-box {
-    padding: 15px;
-    border-bottom: 1px solid var(--glass-border);
-    background-color: rgba(0, 0, 0, 0.1);
-}
-
-.mail-account-box h3 {
-    font-size: 14px;
-    margin-bottom: 5px;
-    color: var(--text-primary);
-}
-
-#mail-account-address {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--accent-green);
-    margin-bottom: 10px;
-    word-break: break-all;
-}
-
-.mail-create-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 10px;
-}
-
-.mail-create-form input,
-.mail-create-form select {
-    width: 100%;
-    background-color: var(--icon-bg-grey);
-    border: 1px solid var(--glass-border);
-    padding: 8px 10px;
-    border-radius: 6px;
-    color: var(--text-primary);
-    font-size: 13px;
-    outline: none;
-}
-
-#mail-create-btn,
-#mail-refresh-btn {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    font-size: 14px;
-    font-weight: 600;
-    background-color: var(--accent-blue);
-    color: var(--white);
-}
-
-#mail-create-btn:hover {
-    background-color: var(--accent-bright-blue);
-}
-
-#mail-refresh-btn {
-    background-color: var(--accent-green);
-}
-#mail-refresh-btn:hover {
-    background-color: #2b8c45;
-}
-
-.email-list-status {
-    padding: 15px;
-    color: var(--text-dim);
-    font-size: 13px;
-    text-align: center;
-}
-
-/* Ensure the content body doesn't break layout */
-.content-body {
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--text-dim);
-    flex-grow: 1;
-    /* Add this to contain images/iframes */
-    overflow-y: auto;
-    word-wrap: break-word;
-}
-.content-body * {
-    max-width: 100%;
-    height: auto;
-}
 
 /* --- 2. Custom Cursor Styles (New) --- */
 

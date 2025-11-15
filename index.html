@@ -109,8 +109,32 @@
                 </div>
             </div>
         </div>
-        
+
+        <div class="quick-settings hidden" id="quick-settings">
+            <div class="slider-control">
+                <i class="fa-solid fa-volume-high"></i>
+                <input type="range" min="0" max="100" value="75">
+            </div>
+            <div class="slider-control">
+                <i class="fa-solid fa-sun"></i>
+                <input type="range" min="0" max="100" value="50">
+            </div>
+            <div class="toggles">
+                <button class="toggle-btn active" id="wifi-toggle">
+                    <i class="fa-solid fa-wifi"></i>
+                    <span>Wi-Fi</span>
+                </button>
+                <button class="toggle-btn active" id="bt-toggle">
+                    <i class="fa-brands fa-bluetooth-b"></i>
+                    <span>Bluetooth</span>
+                </button>
+                <button class="toggle-btn" id="night-toggle">
+                    <i class="fa-solid fa-moon"></i>
+                    <span>Night Light</span>
+                </button>
+            </div>
         </div>
+    </div>
 
     <footer class="taskbar">
         <div class="taskbar-left">
@@ -121,12 +145,12 @@
         <div class="taskbar-center">
         </div>
         <div class="taskbar-right">
-            <p id="date">May 15, 2025</p>
+            <span id="date">May 15, 2025</span>
             <button class="status-button" id="status-button">
                 <i class="fa-solid fa-wifi"></i>
                 <i class="fa-solid fa-battery-three-quarters"></i>
                 <i class="fa-solid fa-volume-high"></i>
-                <p id="time">10:00</p>
+                <span id="time">10:00</span>
             </button>
         </div>
     </footer>
