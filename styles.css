@@ -1742,7 +1742,7 @@ input:checked+.slider:before {
 .translator-lang-select {
     background-color: var(--icon-bg-grey);
     border: none;
-    padding: 10px;
+    padding: 10px 30px 10px 14px;
     border-radius: 10px;
     color: var(--text-primary);
     font-size: 14px;
