@@ -1712,3 +1712,103 @@ input:checked+.slider:before {
 #forgot-password:hover {
     text-decoration: underline;
 }
+
+/* --- 14. Translator App Styles --- */
+.window[data-app-id="translator"] .window-body {
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+    display: flex;
+    flex-direction: column;
+}
+
+.translator-app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+.translator-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    border-bottom: var(--glass-border);
+    flex-shrink: 0;
+}
+
+.translator-lang-select {
+    background-color: var(--icon-bg-grey);
+    border: none;
+    padding: 10px 14px;
+    border-radius: 10px;
+    color: var(--text-primary);
+    font-size: 14px;
+    font-weight: 500;
+    outline: none;
+}
+
+.translator-swap-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    font-size: 18px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+.translator-swap-btn:hover {
+    background-color: var(--icon-bg-grey);
+}
+
+.translator-body {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background-color: var(--glass-border);
+    min-height: 200px; /* Ensures body has a minimum height */
+}
+
+.translator-textarea {
+    resize: none;
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: transparent;
+    padding: 20px;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.translator-textarea#translator-output {
+    background-color: rgba(0,0,0,0.1);
+    color: var(--text-primary);
+}
+
+.light-mode .translator-textarea#translator-output {
+     background-color: rgba(0,0,0,0.05);
+}
+
+.translator-footer {
+    padding: 12px 20px;
+    border-top: var(--glass-border);
+    display: flex;
+    justify-content: flex-end;
+    flex-shrink: 0;
+}
+
+.translator-translate-btn {
+    background-color: var(--accent-blue);
+    color: var(--white);
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+.translator-translate-btn:hover {
+    background-color: var(--accent-bright-blue);
+}

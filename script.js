@@ -98,8 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const INSTALLED_APPS_KEY = 'nyxoraOS_installedApps';
     const PINNED_APPS_KEY = 'nyxoraOS_pinnedApps';
-    
-    const DEFAULT_INSTALLED_APPS = ['appstore', 'settings', 'calendar', 'weather', 'files', 'pictures', 'gmail', 'browser'];
+    const DEFAULT_INSTALLED_APPS = ['appstore', 'settings', 'calendar', 'weather', 'files', 'pictures', 'gmail', 'browser', 'translator'];
     const DEFAULT_PINNED_APPS = ['browser', 'gmail', 'files', 'settings', 'appstore'];
 
     let installedApps = JSON.parse(localStorage.getItem(INSTALLED_APPS_KEY)) || DEFAULT_INSTALLED_APPS;
@@ -396,6 +395,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (appId === 'browser') {
             initialWidth = '800px';
             initialHeight = '650px';
+        } else if (appId === 'translator') {
+            initialWidth = '650px';
+            initialHeight = '450px';
         }
 
         windowElement.style.width = initialWidth;
@@ -449,7 +451,69 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appId === 'weather') {
             initializeWeatherListeners(windowElement);
         }
+        if (appId === 'translator') {
+            initializeTranslatorListeners(windowElement);
+        }
     }
+
+    function initializeTranslatorListeners(windowElement) {
+        const inputLang = windowElement.querySelector('#translator-lang-from');
+        const outputLang = windowElement.querySelector('#translator-lang-to');
+        const swapBtn = windowElement.querySelector('#translator-swap');
+        const inputArea = windowElement.querySelector('#translator-input');
+        const outputArea = windowElement.querySelector('#translator-output');
+        const translateBtn = windowElement.querySelector('#translator-translate-btn');
+
+        if (!translateBtn) return; // Already initialized or error
+
+        const doTranslate = () => {
+            const inputText = inputArea.value;
+            if (!inputText) return;
+
+            const inputLanguage = inputLang.value;
+            const outputLanguage = outputLang.value;
+
+            outputArea.value = 'Translating...';
+
+            // User's provided fetch logic
+            fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=${inputLanguage}&tl=${outputLanguage}&dt=t&q=${encodeURIComponent(inputText)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data && data[0]) {
+                        // Join all translated segments
+                        const translatedText = data[0].map(segment => segment[0]).join('');
+                        outputArea.value = translatedText;
+                    } else {
+                        outputArea.value = 'Error: Could not translate.';
+                    }
+                })
+                .catch(error => {
+                    console.log(error);
+                    outputArea.value = 'Error: Could not translate.';
+                });
+        };
+        
+        translateBtn.addEventListener('click', doTranslate);
+        inputArea.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                doTranslate();
+            }
+        });
+
+        swapBtn.addEventListener('click', () => {
+            if (inputLang.value === 'auto') {
+                inputLang.value = outputLang.value;
+                outputLang.value = 'en'; // Default to english if swapping from 'auto'
+            } else {
+                const temp = inputLang.value;
+                inputLang.value = outputLang.value;
+                outputLang.value = temp;
+            }
+        });
+    }
+
+   
 
     function addWindowControlListeners(windowElement, appId) {
         const minimizeBtn = windowElement.querySelector('.min-btn');
@@ -726,7 +790,8 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'record', name: 'Note Recorder', category: 'Productivity', icon: 'fa-solid fa-pencil', iconBg: '#fbbc05', price: 'Free', description: 'Simple note taking and drawing.' },
         { id: 'system', name: 'System Manager', category: 'Utilities', icon: 'fa-solid fa-display', iconBg: '#5865F2', price: '$1.99', description: 'Monitor system performance.' },
         { id: 'maps', name: 'Map Navigator', category: 'Utilities', icon: 'fa-solid fa-map-location-dot', iconBg: '#34a853', price: 'Free', description: 'Navigation and local exploration.' },
-        { id: 'whatsapp', name: 'Whatsapp', category: 'Communication', icon: 'fa-brands fa-whatsapp', iconBg: '#0f9d58', price: 'Free', description: 'Encrypted messaging service.' },
+        { id: 'whatsapp', name: 'Chat App', category: 'Communication', icon: 'fa-brands fa-whatsapp', iconBg: '#0f9d58', price: 'Free', description: 'Encrypted messaging service.' },
+        { id: 'translator', name: 'Translator', category: 'Utilities', icon: 'fa-solid fa-language', iconBg: '#4285F4', price: 'Free', description: 'Translate text between languages.' }
     ];
 
     function getAppContent(appId, appName) {
@@ -776,6 +841,36 @@ document.addEventListener('DOMContentLoaded', () => {
                             </div>
                             <div class="calendar-grid-body" id="calendar-month-view">
                             </div>
+                        </div>
+                    </div>
+                `;
+                case 'translator':
+                return `
+                    <div class="translator-app">
+                        <div class="translator-header">
+                            <select id="translator-lang-from" class="translator-lang-select">
+                                <option value="auto">Detect Language</option>
+                                <option value="en">English</option>
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="ja">Japanese</option>
+                            </select>
+                            <button id="translator-swap" class="translator-swap-btn" title="Swap languages"><i class="fa-solid fa-right-left"></i></button>
+                            <select id="translator-lang-to" class="translator-lang-select">
+                                <option value="es">Spanish</option>
+                                <option value="en">English</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="ja">Japanese</option>
+                            </select>
+                        </div>
+                        <div class="translator-body">
+                            <textarea id="translator-input" class="translator-textarea" placeholder="Enter text..."></textarea>
+                            <textarea id="translator-output" class="translator-textarea" placeholder="Translation..." readonly></textarea>
+                        </div>
+                        <div class="translator-footer">
+                            <button id="translator-translate-btn" class="translator-translate-btn">Translate</button>
                         </div>
                     </div>
                 `;
