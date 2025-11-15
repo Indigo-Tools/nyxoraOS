@@ -79,6 +79,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the Login UI
     setupLoginUI();
     // --- END OF LOGIN LOGIC ---
+   const cursorDot = document.getElementById('custom-cursor-dot');
+    const cursorOutline = document.getElementById('custom-cursor-outline');
+    // Define all elements that should trigger the interaction state
+    const interactiveElements = 'button, a, input, textarea, .window-action-btn, .dock-icon, .app-item, .context-menu-item, .email-item, .install-button, .translator-lang-select';
+
+    document.addEventListener('mousemove', (e) => {
+        if (!cursorDot || !cursorOutline) return;
+
+        cursorDot.style.left = e.clientX + 'px';
+        cursorDot.style.top = e.clientY + 'px';
+        
+        // Use requestAnimationFrame for smoother outline movement
+        requestAnimationFrame(() => {
+            cursorOutline.style.left = e.clientX + 'px';
+            cursorOutline.style.top = e.clientY + 'px';
+        });
+    });
+
+
+    document.addEventListener('mouseover', (e) => {
+        if (e.target.closest(interactiveElements)) {
+            document.body.classList.add('interactive-cursor-state');
+        }
+    });
+
+    document.addEventListener('mouseout', (e) => {
+        if (!e.target.closest(interactiveElements)) {
+            document.body.classList.remove('interactive-cursor-state');
+        }
+    });
+    // --- END OF CUSTOM CURSOR LOGIC ---
 
 
     // --- Your existing code starts here ---
