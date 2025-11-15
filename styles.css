@@ -1825,6 +1825,89 @@ input:checked+.slider:before {
     height: auto;
 }
 
+.mail-account-box {
+    padding: 15px;
+    border-bottom: 1px solid var(--glass-border);
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.mail-account-box h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: var(--text-primary);
+}
+
+#mail-account-address {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-green);
+    margin-bottom: 10px;
+    word-break: break-all;
+}
+
+.mail-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.mail-create-form input,
+.mail-create-form select {
+    width: 100%;
+    background-color: var(--icon-bg-grey);
+    border: 1px solid var(--glass-border);
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+}
+
+#mail-create-btn,
+#mail-refresh-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    background-color: var(--accent-blue);
+    color: var(--white);
+}
+
+#mail-create-btn:hover {
+    background-color: var(--accent-bright-blue);
+}
+
+#mail-refresh-btn {
+    background-color: var(--accent-green);
+}
+#mail-refresh-btn:hover {
+    background-color: #2b8c45;
+}
+
+.email-list-status {
+    padding: 15px;
+    color: var(--text-dim);
+    font-size: 13px;
+    text-align: center;
+}
+
+/* Ensure the content body doesn't break layout */
+.content-body {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-dim);
+    flex-grow: 1;
+    /* Add this to contain images/iframes */
+    overflow-y: auto;
+    word-wrap: break-word;
+}
+.content-body * {
+    max-width: 100%;
+    height: auto;
+}
+
 /* --- 2. Custom Cursor Styles (New) --- */
 
 /* Hide default cursor globally on major interactive areas */
