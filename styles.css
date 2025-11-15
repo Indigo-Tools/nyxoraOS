@@ -363,87 +363,8 @@ button {
 }
 
 /* --- 5. Quick Settings Panel --- */
-.quick-settings {
-    position: absolute;
-    bottom: 70px;
-    right: 15px;
-    width: 320px;
-    background-color: var(--bg-glass-modal);
-    backdrop-filter: blur(20px);
-    border-radius: var(--border-radius-inner);
-    border: var(--glass-border);
-    padding: 16px;
-    z-index: 1001;
-    opacity: 1;
-    visibility: visible;
-    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
-}
+/* REMOVED .quick-settings styles */
 
-.slider-control {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 14px;
-}
-
-.slider-control i {
-    color: var(--text-secondary);
-    font-size: 16px;
-    width: 20px;
-    text-align: center;
-}
-
-input[type="range"] {
-    flex-grow: 1;
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 6px;
-    background: var(--icon-bg-grey);
-    border-radius: 3px;
-    outline: none;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 16px;
-    height: 16px;
-    background: var(--accent-blue);
-    border-radius: 50%;
-    cursor: pointer;
-    border: 2px solid var(--white);
-}
-
-.toggles {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-    margin-top: 8px;
-}
-
-.toggle-btn {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 12px 8px;
-    background: var(--icon-bg-grey);
-    border-radius: 12px;
-    color: var(--text-primary);
-    font-size: 11px;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-.toggle-btn i {
-    font-size: 18px;
-}
-
-.toggle-btn.active {
-    background: var(--accent-blue);
-    color: var(--white);
-}
 
 /* --- 6. App Window Styles --- */
 .window {
@@ -1866,12 +1787,26 @@ input:checked+.slider:before {
     background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* --- GMAIL APP FIX --- */
+/* Added style for the active email item */
+.email-item.active {
+    background-color: var(--accent-blue);
+    color: var(--white);
+}
+.email-item.active .email-item-subject {
+    color: var(--white);
+}
+
+
 .email-item-sender {
     font-size: 14px;
     font-weight: 600;
     color: inherit;
     display: block;
     margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .email-item-subject {
