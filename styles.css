@@ -1738,10 +1738,11 @@ input:checked+.slider:before {
     flex-shrink: 0;
 }
 
+
 .translator-lang-select {
     background-color: var(--icon-bg-grey);
     border: none;
-    padding: 10px 14px;
+    padding: 10px;
     border-radius: 10px;
     color: var(--text-primary);
     font-size: 14px;
