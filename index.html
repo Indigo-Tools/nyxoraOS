@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NyxoraOS Concept (Functional)</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div id="login-screen">
+        <div class="login-panel">
+            <div class="wallpaper-logo">
+                <img src="nyxora-logo.png" alt="Nyxora Logo" class="nyxora-logo" style="width: 80px; height: 80px; margin-right: -10px;">
+                <p class="nyxora">nyxora</p> <p class="os">OS</p>
+            </div>
+            <h3 id="login-title">Create Password</h3>
+            <p id="login-message"></p>
+            <div class="login-input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" id="password-input" placeholder="Enter your password">
+            </div>
+            <button id="login-button">Create</button>
+            <a href="#" id="forgot-password">Forgot Password?</a>
+        </div>
+    </div>
+    <div id="desktop">
+        <div id="desktop-container"></div>
+        <div class="app-launcher hidden" id="app-launcher">
+            <div class="launcher-header">
+                <div class="user-info">
+                    <i class="fa-solid fa-user-shield"></i>
+                    <span>Administrator</span>
+                </div>
+                <div class="search-bar">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" id="launcher-search-input" placeholder="Search your files, apps and more">
+                </div>
+            </div>
+            <div class="launcher-body">
+                <h3>Your applications</h3>
+                <button class="all-apps-btn">All Apps</button>
+            </div>
+            <div class="app-grid">
+                <div class="app-item" data-app-id="appstore" data-app-name="App Store">
+                    <div class="app-icon" style="background: #5865F2;"><i class="fas fa-store"></i></div>
+                    <span>App Store</span>
+                </div>
+                <div class="app-item" data-app-id="browser" data-app-name="Rammerhead">
+                    <div class="app-icon" style="background: #0f9d58;"><i class="fa-solid fa-globe"></i></div>
+                    <span>Rammerhead</span>
+                </div>
+                <div class="app-item" data-app-id="gmail" data-app-name="Gmail">
+                    <div class="app-icon" style="background: #db4437;"><i class="fa-solid fa-envelope"></i></div>
+                    <span>Gmail</span>
+                </div>
+                <div class="app-item" data-app-id="pictures" data-app-name="Pictures">
+                    <div class="app-icon" style="background: #db4437;"><i class="fa-solid fa-images"></i></div>
+                    <span>Pictures</span>
+                </div>
+                <div class="app-item" data-app-id="settings" data-app-name="Settings">
+                    <div class="app-icon" style="background: #808080;"><i class="fa-solid fa-gear"></i></div>
+                    <span>Settings</span>
+                </div>
+                <div class="app-item" data-app-id="calendar" data-app-name="Calendar">
+                    <div class="app-icon" style="background: #34a853;"><i class="fa-solid fa-calendar-days"></i></div>
+                    <span>Calendar</span>
+                </div>
+                <div class="app-item" data-app-id="weather" data-app-name="Weather">
+                    <div class="app-icon" style="background: #fbbc05;"><i class="fa-solid fa-cloud-sun"></i></div>
+                    <span>Weather</span>
+                </div>
+                <div class="app-item" data-app-id="sound" data-app-name="Sound Control">
+                    <div class="app-icon" style="background: #8e44ad;"><i class="fa-solid fa-volume-high"></i></div>
+                    <span>Sound</span>
+                </div>
+                <div class="app-item" data-app-id="record" data-app-name="Note Recorder">
+                    <div class="app-icon" style="background: #fbbc05;"><i class="fa-solid fa-pencil"></i></div>
+                    <span>Record</span>
+                </div>
+                <div class="app-item" data-app-id="system" data-app-name="System Manager">
+                    <div class="app-icon" style="background: #5865F2;"><i class="fa-solid fa-display"></i></div>
+                    <span>System-Settings</span>
+                </div>
+                <div class="app-item" data-app-id="maps" data-app-name="Map Navigator">
+                    <div class="app-icon" style="background: #34a853;"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <span>Maps</span>
+                </div>
+                <div class="app-item" data-app-id="files" data-app-name="Files">
+                    <div class="app-icon" style="background: #5865F2;"><i class="fa-solid fa-folder"></i></div>
+                    <span>Files</span>
+                </div>
+                <div class="app-item" data-app-id="whatsapp" data-app-name="Chat App">
+                    <div class="app-icon" style="background: #0f9d58;"><i class="fa-brands fa-whatsapp"></i></div>
+                    <span>Whatsapp</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-settings hidden" id="quick-settings">
+            <div class="slider-control">
+                <i class="fa-solid fa-volume-high"></i>
+                <input type="range" min="0" max="100" value="75">
+            </div>
+            <div class="slider-control">
+                <i class="fa-solid fa-sun"></i>
+                <input type="range" min="0" max="100" value="50">
+            </div>
+            <div class="toggles">
+                <button class="toggle-btn active" id="wifi-toggle">
+                    <i class="fa-solid fa-wifi"></i>
+                    <span>Wi-Fi</span>
+                </button>
+                <button class="toggle-btn active" id="bt-toggle">
+                    <i class="fa-brands fa-bluetooth-b"></i>
+                    <span>Bluetooth</span>
+                </button>
+                <button class="toggle-btn" id="night-toggle">
+                    <i class="fa-solid fa-moon"></i>
+                    <span>Night Light</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="taskbar">
+        <div class="taskbar-left">
+            <button class="dock-icon" id="start-button" title="App Launcher">
+                <i class="fa-solid fa-water"></i>
+            </button>
+        </div>
+        <div class="taskbar-center">
+        </div>
+        <div class="taskbar-right">
+            <span id="date">May 15, 2025</span>
+            <button class="status-button" id="status-button">
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-three-quarters"></i>
+                <i class="fa-solid fa-volume-high"></i>
+                <span id="time">10:00</span>
+            </button>
+        </div>
+    </footer>
+    <script src="script.js"></script>
+</body>
+
+</html>

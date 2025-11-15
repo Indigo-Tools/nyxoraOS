@@ -1,0 +1,1714 @@
+/* --- 1. Color Palette & Global Styles --- */
+:root {
+    --bg-dark: #171616;
+    --bg-glass-dark: rgba(23, 22, 22, 0.65);
+    --bg-glass-modal: rgba(0, 0, 0, 0.75);
+    --bg-glass-window: rgba(40, 40, 40, 0.6);
+    --text-primary: #F4F3FB;
+    --text-secondary: #889ADA;
+    --text-dim: rgba(244, 243, 251, 0.7);
+    --accent-blue: #7289DA;
+    --accent-bright-blue: #5865F2;
+    --icon-bg-grey: #333333;
+    --white: #FFFFFF;
+    --black: #000000;
+    --accent-red: #db4437;
+    --accent-green: #34a853;
+    --accent-yellow: #fbbc05;
+
+    /* UI Sizing & Borders */
+    --border-radius-main: 20px;
+    --border-radius-inner: 16px;
+    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* Animation */
+    --transition-fast: 0.15s ease-out;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    transition: background-color var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+}
+
+html,
+body {
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-primary);
+}
+
+button {
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    border: none;
+}
+
+.hidden {
+    opacity: 0 !important;
+    pointer-events: none !important;
+    visibility: hidden !important;
+    transform: translateY(10px) !important;
+}
+
+/* --- 2. Desktop, Wallpaper & Window Container --- */
+#desktop {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    background-color: #1a1f2c;
+    background-image:
+        radial-gradient(ellipse at 50% 30%, #fdeec9 0%, rgba(253, 238, 201, 0) 40%),
+        linear-gradient(to bottom, #0d1a26 0%, #1f2430 100%);
+    transition: background-color 0.5s ease, background-image 0.5s ease;
+}
+
+#desktop-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.wallpaper-logo {
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    z-index: 1;
+}
+
+.nyxora {
+    color: var(--accent-blue);
+    font-family: 'Nyxora', sans-serif;
+}
+
+.nyxora-logo {
+    margin-right: -15px;
+    animation: pulse 3s infinite;
+    width: 150px;
+    height: 150px;
+}
+/* --- 3. Taskbar / Dock --- */
+.taskbar {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    padding: 6px;
+    background-color: var(--bg-glass-dark);
+    backdrop-filter: blur(12px);
+    border-radius: var(--border-radius-main);
+    border: var(--glass-border);
+    z-index: 1000;
+}
+
+.taskbar-left {
+    font-size: 13px;
+    color: var(--text-dim);
+    padding: 0 10px;
+}
+
+.taskbar-center {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 8px;
+}
+
+.dock-icon {
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 20px;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.dock-icon:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.dock-icon.dragging {
+    opacity: 0.5;
+    transform: scale(0.9);
+}
+
+.dock-icon.drag-over {
+    box-shadow: 0 0 0 2px var(--accent-blue);
+}
+
+
+.active-indicator {
+    position: absolute;
+    bottom: 2px;
+    width: 16px;
+    height: 3px;
+    background-color: var(--accent-bright-blue);
+    border-radius: 2px;
+    opacity: 0;
+    transform: scaleX(0);
+    transition: all 0.25s ease;
+}
+
+.dock-icon.active .active-indicator {
+    opacity: 1;
+    transform: scaleX(1);
+}
+
+#start-button {
+    background-color: var(--accent-blue);
+    color: var(--white);
+    font-size: 18px;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    transition: background-color 0.2s ease;
+}
+
+#start-button:hover {
+    background-color: var(--accent-bright-blue);
+}
+
+.taskbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 0 10px;
+    font-size: 13px;
+    color: var(--text-dim);
+}
+
+#datetime {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.status-button {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: transparent;
+    color: var(--text-dim);
+    padding: 8px 12px;
+    border-radius: 12px;
+    transition: background-color 0.2s ease;
+}
+
+.status-button:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.status-button i {
+    font-size: 14px;
+}
+
+.status-button #time {
+    color: var(--text-primary);
+    font-weight: 500;
+    font-size: 13px;
+}
+
+
+/* --- 4. App Launcher --- */
+.app-launcher {
+    position: absolute;
+    bottom: 10%;
+    left: 50%;
+    transform: translate(-50%, 0px);
+    width: 90%;
+    max-width: 620px;
+    background-color: var(--bg-glass-modal);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius-main);
+    border: var(--glass-border);
+    padding: 20px;
+    z-index: 1001;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.launcher-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.user-info i {
+    font-size: 28px;
+    color: var(--accent-blue);
+}
+
+.search-bar {
+    position: relative;
+    flex-grow: 1;
+}
+
+.search-bar i {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.search-bar input {
+    width: 100%;
+    background-color: var(--icon-bg-grey);
+    border: none;
+    border-radius: 18px;
+    padding: 12px 16px 12px 40px;
+    color: var(--text-primary);
+    font-size: 14px;
+    outline: none;
+}
+
+.search-bar input::placeholder {
+    color: var(--text-secondary);
+}
+
+.launcher-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding: 0 4px;
+}
+
+.launcher-body h3 {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-dim);
+}
+
+.all-apps-btn {
+    background: var(--icon-bg-grey);
+    color: var(--text-primary);
+    border-radius: 16px;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.all-apps-btn:hover {
+    background-color: #444;
+}
+
+.app-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 16px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+.app-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: background-color 0.2s ease;
+}
+
+.app-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.app-item span {
+    font-size: 12px;
+    text-align: center;
+    color: var(--text-dim);
+}
+
+.app-icon {
+    width: 56px;
+    height: 56px;
+    background-color: var(--icon-bg-grey);
+    border-radius: var(--border-radius-inner);
+    display: grid;
+    place-items: center;
+    font-size: 24px;
+    color: var(--white);
+}
+
+/* --- 5. Quick Settings Panel --- */
+.quick-settings {
+    position: absolute;
+    bottom: 70px;
+    right: 15px;
+    width: 320px;
+    background-color: var(--bg-glass-modal);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius-inner);
+    border: var(--glass-border);
+    padding: 16px;
+    z-index: 1001;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s;
+}
+
+.slider-control {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.slider-control i {
+    color: var(--text-secondary);
+    font-size: 16px;
+    width: 20px;
+    text-align: center;
+}
+
+input[type="range"] {
+    flex-grow: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: var(--icon-bg-grey);
+    border-radius: 3px;
+    outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--white);
+}
+
+.toggles {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.toggle-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 8px;
+    background: var(--icon-bg-grey);
+    border-radius: 12px;
+    color: var(--text-primary);
+    font-size: 11px;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-btn i {
+    font-size: 18px;
+}
+
+.toggle-btn.active {
+    background: var(--accent-blue);
+    color: var(--white);
+}
+
+/* --- 6. App Window Styles --- */
+.window {
+    position: absolute;
+    width: 500px;
+    height: 350px;
+    min-width: 250px;
+    min-height: 150px;
+    background-color: var(--bg-glass-window);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    border: var(--glass-border);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    resize: both;
+    overflow: hidden;
+    z-index: 10;
+}
+
+.window-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.2);
+    cursor: move;
+    user-select: none;
+}
+
+.window-title {
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.window-controls {
+    display: flex;
+    gap: 6px;
+}
+
+.window-controls button {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--icon-bg-grey);
+    font-size: 8px;
+    color: transparent;
+    display: grid;
+    place-items: center;
+}
+
+.window-controls button:hover {
+    color: var(--text-primary);
+}
+
+.window-controls .close-btn {
+    background-color: #FF5F57;
+}
+
+.window-controls .min-btn {
+    background-color: #FEBC2E;
+}
+
+.window-controls .max-btn {
+    background-color: #28C840;
+}
+
+.window-body {
+    flex-grow: 1;
+    padding: 16px;
+    font-size: 14px;
+    overflow-y: auto;
+}
+
+.window.minimized {
+    transform: scale(0);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* --- 7. Calendar App Styles --- */
+.window[data-app-id="calendar"] .window-body {
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+.calendar-app {
+    display: flex;
+    height: 100%;
+}
+
+.calendar-sidebar {
+    width: 180px;
+    padding: 16px;
+    border-right: var(--glass-border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.create-event-btn {
+    background-color: var(--accent-blue);
+    color: var(--white);
+    padding: 10px 16px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 600;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
+}
+
+.create-event-btn:hover {
+    background-color: var(--accent-bright-blue);
+}
+
+.create-event-btn i {
+    margin-right: 8px;
+}
+
+.calendar-list {
+    margin-top: 24px;
+}
+
+.calendar-list h4 {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.calendar-list ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.calendar-list li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.calendar-color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.calendar-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: var(--glass-border);
+}
+
+.calendar-header h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.cal-nav-btn {
+    background: transparent;
+    color: var(--text-secondary);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 14px;
+}
+
+.cal-nav-btn:hover {
+    background-color: var(--icon-bg-grey);
+}
+
+.cal-today-btn {
+    background: var(--icon-bg-grey);
+    color: var(--text-primary);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 8px;
+    margin: 0 10px;
+}
+
+.cal-today-btn:hover {
+    background-color: #444;
+}
+
+.calendar-grid-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    padding: 8px 4px;
+    border-bottom: var(--glass-border);
+}
+
+.calendar-day-header {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+}
+
+.calendar-grid-body {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    flex-grow: 1;
+    border-left: var(--glass-border);
+    border-top: var(--glass-border);
+}
+
+.calendar-day {
+    padding: 6px;
+    border-right: var(--glass-border);
+    border-bottom: var(--glass-border);
+    font-size: 12px;
+    font-weight: 500;
+    min-height: 60px;
+    transition: background-color 0.2s;
+}
+
+.calendar-day:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.day-dimmed {
+    color: var(--text-dim);
+    opacity: 0.6;
+}
+
+.day-today .day-number {
+    background-color: var(--accent-blue);
+    color: var(--white);
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    margin-bottom: 4px;
+}
+
+.calendar-event {
+    font-size: 10px;
+    font-weight: 500;
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-top: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+.event-blue {
+    background-color: var(--accent-blue);
+    color: var(--white);
+}
+
+.event-green {
+    background-color: #34a853;
+    color: var(--white);
+}
+
+/* --- 8. WEATHER APP STYLING --- */
+
+.window[data-app-id="weather"] .window-body {
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+.weather-app-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.weather-input-section {
+    display: flex;
+    width: 100%;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    background-color: var(--icon-bg-grey);
+    box-shadow: none;
+}
+
+.city-input {
+    flex-grow: 1;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    background: transparent;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.search-btn,
+.location-btn {
+    background-color: var(--accent-blue);
+    border: none;
+    color: var(--white);
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.search-btn:hover {
+    background-color: var(--accent-bright-blue);
+}
+
+.location-btn {
+    background-color: #34a853;
+}
+
+.location-btn:hover {
+    background-color: #2b8c45;
+}
+
+.weather-status {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 20px;
+    height: 1.2em;
+}
+
+.weather-info-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.weather-icon {
+    width: 120px;
+    height: 120px;
+    margin: -20px 0 -10px 0;
+}
+
+.temp-section {
+    margin-bottom: 5px;
+}
+
+.weather-temp {
+    font-size: 56px;
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--text-primary);
+}
+
+.weather-city {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 5px;
+}
+
+.weather-description {
+    font-size: 14px;
+    color: var(--text-dim);
+    font-weight: 500;
+    margin-bottom: 25px;
+    text-transform: capitalize;
+}
+
+.weather-details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 100%;
+    padding: 0;
+}
+
+.detail-box {
+    background: var(--icon-bg-grey);
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: var(--text-primary);
+    text-align: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.detail-box i {
+    font-size: 20px;
+    color: var(--accent-blue);
+    margin-bottom: 4px;
+}
+
+.detail-box span {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.detail-box p {
+    margin: 0;
+    font-size: 11px;
+    color: var(--text-dim);
+}
+
+
+/* --- 9. SETTINGS APP STYLING --- */
+
+.window[data-app-id="settings"] .window-body {
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+.settings-app {
+    display: flex;
+    height: 100%;
+}
+
+.settings-sidebar {
+    width: 200px;
+    padding: 20px 0;
+    border-right: var(--glass-border);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.settings-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    color: var(--text-dim);
+}
+
+.settings-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.settings-nav-item.active {
+    background-color: var(--accent-blue);
+    color: var(--white);
+    position: relative;
+    font-weight: 600;
+}
+
+.settings-nav-item.active i {
+    color: var(--white);
+}
+
+.settings-nav-item i {
+    font-size: 18px;
+    color: var(--text-secondary);
+    width: 20px;
+}
+
+.settings-main {
+    flex-grow: 1;
+    padding: 20px 30px;
+    overflow-y: auto;
+}
+
+.settings-main h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--text-primary);
+}
+
+.settings-section {
+    margin-bottom: 30px;
+}
+
+.settings-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.setting-info p {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    color: var(--text-primary);
+}
+
+.setting-info small {
+    display: block;
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--icon-bg-grey);
+    transition: .4s;
+    border-radius: 20px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked+.slider {
+    background-color: var(--accent-blue);
+}
+
+input:checked+.slider:before {
+    transform: translateX(20px);
+}
+
+.setting-control select,
+.setting-control input[type="text"] {
+    background-color: var(--icon-bg-grey);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+    min-width: 120px;
+}
+
+/* --- 10. DARK / LIGHT MODE SWITCHING --- */
+
+.light-mode {
+    --bg-dark: #FFFFFF;
+    --bg-glass-dark: rgba(255, 255, 255, 0.75);
+    --bg-glass-modal: rgba(255, 255, 255, 0.85);
+    --bg-glass-window: rgba(255, 255, 255, 0.9);
+    --icon-bg-grey: #e8e8e8;
+
+    --text-primary: #171616;
+    --text-secondary: #5865F2;
+    --text-dim: rgba(23, 22, 22, 0.7);
+
+    --glass-border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.light-mode #desktop {
+    background-color: #f7f7f7;
+    background-image: linear-gradient(to bottom, #eeeeee 0%, #f7f7f7 100%);
+}
+
+.light-mode .window-header {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .settings-nav-item.active {
+    background-color: var(--accent-blue);
+    color: var(--white);
+}
+
+.light-mode .dock-icon:hover,
+.light-mode .status-button:hover,
+.light-mode .settings-nav-item:hover,
+.light-mode .calendar-day:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.light-mode .search-bar input {
+    background-color: var(--icon-bg-grey);
+}
+
+.light-mode .all-apps-btn:hover {
+    background-color: #cacaca;
+}
+
+/* --- 11. RIGHT-CLICK CONTEXT MENU --- */
+
+.context-menu {
+    position: fixed;
+    background-color: var(--bg-glass-modal);
+    backdrop-filter: blur(15px);
+    border-radius: 10px;
+    border: var(--glass-border);
+    padding: 6px 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
+    min-width: 180px;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.1s ease, transform 0.1s ease, visibility 0.1s;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 15px;
+    font-size: 13px;
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.1s;
+    user-select: none;
+}
+
+.menu-item:hover {
+    background-color: var(--accent-blue);
+    color: var(--white);
+}
+
+.menu-separator {
+    height: 1px;
+    margin: 4px 0;
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.light-mode .context-menu {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.light-mode .menu-separator {
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Calendar Week View */
+.calendar-week-container {
+    display: flex;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 5px;
+}
+
+.week-time-column {
+    display: flex;
+    flex-direction: column;
+    width: 50px;
+    flex-shrink: 0;
+    text-align: right;
+    padding-top: 40px;
+}
+
+.hour-label {
+    height: 50px;
+    line-height: 50px;
+    font-size: 10px;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border-color);
+    padding-right: 5px;
+}
+
+.week-days-grid {
+    display: flex;
+    flex-grow: 1;
+}
+
+.week-day-column {
+    display: flex;
+    flex-direction: column;
+    min-width: 120px;
+    width: 14.28%;
+    border-left: 1px solid var(--border-color);
+    position: relative;
+    padding-top: 40px;
+}
+
+.week-day-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    padding: 10px;
+    text-align: center;
+    background: var(--bg-primary-lighter);
+    border-bottom: 1px solid var(--border-color);
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.week-day-column.day-today {
+    background-color: var(--bg-tertiary);
+}
+
+.week-hour-slot {
+    height: 50px;
+    border-top: 1px dashed var(--border-color);
+    position: relative;
+}
+
+.week-event-indicator {
+    position: absolute;
+    top: 5px;
+    bottom: 5px;
+    left: 5px;
+    right: 5px;
+    border-radius: 4px;
+    opacity: 0.7;
+}
+
+/* Event Creation Menu */
+.create-event-menu {
+    padding: 15px;
+    margin-top: 10px;
+    border-radius: 8px;
+    background: var(--icon-bg-grey);
+    border: var(--glass-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.create-event-menu h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+    color: var(--text-primary);
+}
+
+.create-event-menu input,
+.create-event-menu select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: 1px solid var(--glass-border);
+    background: var(--bg-dark);
+    color: var(--text-primary);
+}
+
+#save-event-btn {
+    width: 100%;
+    background: var(--accent-blue);
+    color: var(--white);
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+}
+
+/* Submenu styles for Context Menu */
+.context-menu .menu-item {
+    position: relative;
+    padding-right: 25px;
+}
+
+.context-menu .menu-item .fas.fa-chevron-right {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+}
+
+.submenu {
+    position: absolute;
+    top: -5px;
+    left: 100%;
+    min-width: 150px;
+    background-color: var(--bg-glass-modal);
+    backdrop-filter: blur(15px);
+    border-radius: 8px;
+    border: var(--glass-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    padding: 5px 0;
+    z-index: 10000;
+    display: none;
+}
+
+.has-submenu:hover>.submenu {
+    display: block;
+}
+
+.submenu .menu-item {
+    padding: 8px 15px;
+    cursor: pointer;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.submenu .menu-item:hover {
+    background-color: var(--accent-blue);
+    color: var(--white);
+}
+
+/* --- App Store Specific Styles (Redesigned) --- */
+
+.window[data-app-id="appstore"] .window-body {
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+.appstore-app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.appstore-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: var(--glass-border);
+}
+
+.appstore-header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.appstore-search {
+    position: relative;
+}
+
+.appstore-search input {
+    padding: 10px 16px 10px 40px;
+    border: none;
+    border-radius: 10px;
+    background: var(--icon-bg-grey);
+    color: var(--text-primary);
+    width: 250px;
+    font-size: 14px;
+    outline: none;
+}
+
+.appstore-search .fas {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.appstore-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+}
+
+.app-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.app-list h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--glass-border);
+    padding-bottom: 8px;
+    grid-column: 1 / -1;
+}
+
+.app-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: var(--bg-glass-window);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: var(--glass-border);
+    text-align: center;
+}
+
+.app-card .app-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 12px;
+    font-size: 28px;
+}
+
+.app-card .app-info {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.app-card .app-info h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.app-card .app-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-dim);
+    line-height: 1.4;
+    height: 2.8em;
+    overflow: hidden;
+}
+
+.app-card .app-info small {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.app-card .install-btn {
+    padding: 10px 16px;
+    margin-top: 16px;
+    border: none;
+    border-radius: 10px;
+    color: var(--white);
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+    text-align: center;
+    transition: background-color 0.2s;
+}
+
+.app-card .install-btn[data-action="install"] {
+    background: var(--accent-blue);
+}
+
+.app-card .install-btn[data-action="install"]:hover {
+    background: var(--accent-bright-blue);
+}
+
+.app-card .install-btn[data-action="uninstall"] {
+    background: var(--accent-red);
+}
+
+.app-card .install-btn[data-action="uninstall"]:hover {
+    background: #c23b2f;
+}
+
+.app-card .install-btn:disabled {
+    background: var(--icon-bg-grey);
+    color: var(--text-dim);
+    cursor: not-allowed;
+}
+
+/* --- 12. Custom Modal --- */
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(10px);
+    display: grid;
+    place-items: center;
+    z-index: 10001;
+}
+
+.modal-content {
+    background: var(--bg-glass-window);
+    border: var(--glass-border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-content h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.modal-content p {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.modal-button {
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.modal-button.secondary {
+    background: var(--icon-bg-grey);
+    color: var(--text-primary);
+}
+
+.modal-button.secondary:hover {
+    background: #444;
+}
+
+.modal-button.primary {
+    background: var(--accent-blue);
+    color: var(--white);
+}
+
+.modal-button.primary:hover {
+    background: var(--accent-bright-blue);
+}
+
+.window[data-app-id="browser"] .window-body {
+    padding: 0;
+    overflow: hidden;
+    background-color: var(--bg-dark);
+}
+
+.browser-app {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
+}
+
+/* Optional toolbar area (if you add one later) */
+.browser-toolbar {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    align-items: center;
+    border-bottom: var(--glass-border);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
+}
+
+/* address / search input in any toolbar */
+.browser-address {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 10px;
+    background: var(--icon-bg-grey);
+    color: var(--text-primary);
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+/* iframe container */
+.browser-content {
+    flex: 1;
+    display: grid;
+    place-items: stretch;
+    padding: 12px;
+    /* breathing room for rounded iframe */
+    box-sizing: border-box;
+    position: relative;
+    background: transparent;
+}
+
+/* iframe itself */
+#browser-iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 10px;
+    background-color: #000;
+    box-shadow: 0 8px 26px rgba(0, 0, 0, 0.35);
+    min-height: 220px;
+}
+
+/* loading overlay (toggle by adding .loading to .browser-content) */
+.browser-content .iframe-loading {
+    position: absolute;
+    inset: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(0, 0, 0, 0.36), rgba(0, 0, 0, 0.24));
+    color: var(--text-primary);
+    font-weight: 600;
+    z-index: 5;
+}
+
+.browser-content.loading .iframe-loading {
+    display: flex;
+}
+
+/* Light mode tweaks */
+.light-mode .browser-content {
+    padding: 10px;
+}
+
+.light-mode #browser-iframe {
+    background-color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+#login-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-glass-modal);
+    backdrop-filter: blur(20px);
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+#login-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.login-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--bg-glass-window);
+    border: var(--glass-border);
+    border-radius: var(--border-radius-main);
+    padding: 30px 40px;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.login-panel .wallpaper-logo {
+    position: static;
+    transform: none;
+    margin-bottom: 20px;
+    font-size: 32px;
+}
+
+.login-panel h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+#login-message {
+    font-size: 13px;
+    color: var(--accent-red);
+    height: 1.2em;
+    margin-bottom: 10px;
+}
+
+.login-input-group {
+    position: relative;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.login-input-group i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.login-input-group input {
+    width: 100%;
+    background-color: var(--icon-bg-grey);
+    border: none;
+    border-radius: 12px;
+    padding: 14px 16px 14px 45px;
+    color: var(--text-primary);
+    font-size: 15px;
+    outline: none;
+    border: 1px solid transparent;
+    transition: border-color 0.2s ease;
+}
+
+.login-input-group input:focus {
+    border-color: var(--accent-blue);
+}
+
+#login-button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    background-color: var(--accent-blue);
+    color: var(--white);
+    font-size: 16px;
+    font-weight: 600;
+    transition: background-color 0.2s ease;
+}
+
+#login-button:hover {
+    background-color: var(--accent-bright-blue);
+}
+
+#forgot-password {
+    margin-top: 20px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+#forgot-password:hover {
+    text-decoration: underline;
+}
