@@ -543,76 +543,199 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- GMAIL APP ---
-    // New function to handle the mock email app logic
-    function initializeGmailAppListeners(windowElement) {
+  function initializeGmailAppListeners(windowElement) {
         const emailListContainer = windowElement.querySelector('.email-list');
         const emailContentContainer = windowElement.querySelector('.email-content');
-        let emailsData = []; // Store fetched emails
+        const statusText = windowElement.querySelector('.email-list-status');
+        
+        // Account UI
+        const createBtn = windowElement.querySelector('#mail-create-btn');
+        const refreshBtn = windowElement.querySelector('#mail-refresh-btn');
+        const usernameInput = windowElement.querySelector('#mail-username-input');
+        const domainSelect = windowElement.querySelector('#mail-domain-select');
+        const addressDisplay = windowElement.querySelector('#mail-account-address');
+        const accountTitle = windowElement.querySelector('#mail-account-title');
+        const createForm = windowElement.querySelector('.mail-create-form');
 
-        if (!emailListContainer || !emailContentContainer) return;
+        // App state
+        let accountToken = null;
+        let userAddress = null;
+        let messages = [];
 
-        fetch('https://jsonplaceholder.typicode.com/comments?_limit=20') // Get 20 mock emails
-            .then(response => response.json())
-            .then(emails => {
-                emailsData = emails; // Save for later
-                emailListContainer.innerHTML = ''; // Clear "Loading..."
+        const API_URL = 'https://api.mail.tm';
 
-                if (emails.length === 0) {
-                    emailListContainer.innerHTML = '<p style="padding: 15px; color: var(--text-dim);">Inbox is empty.</p>';
-                    return;
-                }
-
-                emails.forEach(email => {
-                    const emailItem = document.createElement('div');
-                    emailItem.className = 'email-item';
-                    // Add a random unread status for visual variety
-                    if (Math.random() > 0.7) {
-                        emailItem.classList.add('unread');
-                    }
-                    emailItem.setAttribute('data-email-id', email.id);
-                    emailItem.innerHTML = `
-                        <span class="email-item-sender">${email.email}</span>
-                        <span class="email-item-subject">${email.name}</span>
-                    `;
-                    emailListContainer.appendChild(emailItem);
-                });
-
-                // Add click listeners
-                emailListContainer.querySelectorAll('.email-item').forEach(item => {
-                    item.addEventListener('click', () => {
-                        // Remove active state from others
-                        emailListContainer.querySelectorAll('.email-item.active').forEach(activeItem => {
-                            activeItem.classList.remove('active');
+        // 1. Fetch available domains for dropdown
+        function getDomains() {
+            fetch(`${API_URL}/domains`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data['hydra:member'] && data['hydra:member'].length > 0) {
+                        domainSelect.innerHTML = '';
+                        data['hydra:member'].forEach(domain => {
+                            domainSelect.innerHTML += `<option value="${domain.domain}">${domain.domain}</option>`;
                         });
-                        // Add active state to current
-                        item.classList.add('active');
-                        item.classList.remove('unread'); // Mark as read
-
-                        const emailId = parseInt(item.getAttribute('data-email-id'), 10);
-                        const email = emailsData.find(e => e.id === emailId);
-
-                        if (email) {
-                            emailContentContainer.innerHTML = `
-                                <div class="email-content-header">
-                                    <h2 class="content-subject">${email.name}</h2>
-                                    <p class="content-from">From: <strong>${email.email}</strong></p>
-                                </div>
-                                <div class="content-body">
-                                    <p>${email.body.replace(/\\n/g, '<br>')}</p>
-                                </div>
-                            `;
-                        }
-                    });
+                        addressDisplay.textContent = 'Ready to create.';
+                    } else {
+                        addressDisplay.textContent = 'Error loading domains.';
+                    }
+                })
+                .catch(() => {
+                    addressDisplay.textContent = 'Error loading domains.';
                 });
-
+        }
+        
+        // 2. Create a new account
+        function createAccount() {
+            const username = usernameInput.value;
+            const domain = domainSelect.value;
+            if (!username) {
+                showModal("Error", "Please enter a username.");
+                return;
+            }
+            
+            const password = 'password123'; // Mail.tm requires a password, but we'll manage with the token
+            userAddress = `${username}@${domain}`;
+            
+            addressDisplay.textContent = 'Creating account...';
+            
+            fetch(`${API_URL}/accounts`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    address: userAddress,
+                    password: password
+                })
             })
-            .catch(error => {
-                console.error('Error fetching emails:', error);
-                emailListContainer.innerHTML = '<p style="padding: 15px; color: var(--accent-red);">Failed to load inbox.</p>';
+            .then(res => res.json())
+            .then(accountData => {
+                if (accountData.address) {
+                    // Account created, now get token
+                    return fetch(`${API_URL}/token`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({
+                            address: userAddress,
+                            password: password
+                        })
+                    });
+                } else {
+                    throw new Error(accountData['hydra:description'] || 'Failed to create account.');
+                }
+            })
+            .then(res => res.json())
+            .then(tokenData => {
+                if (tokenData.token) {
+                    accountToken = tokenData.token;
+                    // Update UI
+                    accountTitle.textContent = "Your Active Inbox";
+                    addressDisplay.textContent = userAddress;
+                    createForm.classList.add('hidden');
+                    createBtn.classList.add('hidden');
+                    refreshBtn.classList.remove('hidden');
+                    statusText.textContent = 'Fetching emails...';
+                    getMessages();
+                } else {
+                    throw new Error('Failed to get auth token.');
+                }
+            })
+            .catch(err => {
+                addressDisplay.textContent = 'Error.';
+                showModal("Error", `Could not create account: ${err.message}`);
             });
+        }
+        
+        // 3. Get messages from inbox
+        function getMessages() {
+            if (!accountToken) return;
+            
+            statusText.textContent = 'Refreshing...';
+            emailListContainer.innerHTML = ''; // Clear list
+            
+            fetch(`${API_URL}/messages`, {
+                headers: { 'Authorization': `Bearer ${accountToken}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data && data['hydra:member']) {
+                    messages = data['hydra:member'];
+                    if (messages.length === 0) {
+                        statusText.textContent = 'Your inbox is empty.';
+                    } else {
+                        statusText.textContent = '';
+                        renderMessageList();
+                    }
+                } else {
+                    throw new Error('Could not fetch messages.');
+                }
+            })
+            .catch(err => {
+                 statusText.textContent = `Error: ${err.message}`;
+            });
+        }
+        
+        // 4. Render the list of messages
+        function renderMessageList() {
+            emailListContainer.innerHTML = ''; // Clear
+            messages.forEach(msg => {
+                const emailItem = document.createElement('div');
+                emailItem.className = 'email-item';
+                if (msg.seen === false) {
+                    emailItem.classList.add('unread');
+                }
+                emailItem.setAttribute('data-email-id', msg.id);
+                emailItem.innerHTML = `
+                    <span class="email-item-sender">${msg.from.address}</span>
+                    <span class="email-item-subject">${msg.subject}</span>
+                `;
+                emailItem.addEventListener('click', () => {
+                    showMessage(msg.id);
+                    // Mark as active
+                    emailListContainer.querySelectorAll('.email-item.active').forEach(i => i.classList.remove('active'));
+                    emailItem.classList.add('active');
+                    emailItem.classList.remove('unread');
+                });
+                emailListContainer.appendChild(emailItem);
+            });
+        }
+        
+        // 5. Show a single message's content
+        function showMessage(id) {
+            emailContentContainer.innerHTML = '<p>Loading message...</p>';
+            
+            fetch(`${API_URL}/messages/${id}`, {
+                headers: { 'Authorization': `Bearer ${accountToken}` }
+            })
+            .then(res => res.json())
+            .then(msg => {
+                emailContentContainer.innerHTML = `
+                    <div class="email-content-header">
+                        <h2 class="content-subject">${msg.subject}</h2>
+                        <p class="content-from">From: <strong>${msg.from.address}</strong></p>
+                    </div>
+                    <div class="content-body">
+                        ${msg.html ? msg.html.join('') : `<p>${msg.text}</p>`}
+                    </div>
+                `;
+                // Mark as seen on the server
+                fetch(`${API_URL}/messages/${id}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${accountToken}`,
+                        'Content-Type': 'application/merge-patch+json'
+                    },
+                    body: JSON.stringify({ seen: true })
+                });
+            })
+            .catch(() => {
+                emailContentContainer.innerHTML = '<p>Error loading message.</p>';
+            });
+        }
+        
+        // --- Init and Event Listeners ---
+        createBtn.addEventListener('click', createAccount);
+        refreshBtn.addEventListener('click', getMessages);
+        getDomains(); // Start by fetching domains
     }
-
 
     function addWindowControlListeners(windowElement, appId) {
         const minimizeBtn = windowElement.querySelector('.min-btn');
@@ -943,25 +1066,37 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-            case 'translator':
+case 'translator':
                 return `
                     <div class="translator-app">
                         <div class="translator-header">
                             <select id="translator-lang-from" class="translator-lang-select">
                                 <option value="auto">Detect Language</option>
-                                <option value="en">English</option>
-                                <option value="es">Spanish</option>
-                                <option value="fr">French</option>
-                                <option value="de">German</option>
-                                <option value="ja">Japanese</option>
+                                <option value="en">🇺🇸 English</option>
+                                <option value="es">🇪🇸 Spanish</option>
+                                <option value="fr">🇫🇷 French</option>
+                                <option value="de">🇩🇪 German</option>
+                                <option value="ja">🇯🇵 Japanese</option>
+                                <option value="it">🇮🇹 Italian</option>
+                                <option value="pt">🇵🇹 Portuguese</option>
+                                <option value="ru">🇷🇺 Russian</option>
+                                <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
+                                <option value="hi">🇮🇳 Hindi</option>
+                                <option value="ar">🇸🇦 Arabic</option>
                             </select>
                             <button id="translator-swap" class="translator-swap-btn" title="Swap languages"><i class="fa-solid fa-right-left"></i></button>
                             <select id="translator-lang-to" class="translator-lang-select">
-                                <option value="es">Spanish</option>
-                                <option value="en">English</option>
-                                <option value="fr">French</option>
-                                <option value="de">German</option>
-                                <option value="ja">Japanese</option>
+                                <option value="en">🇺🇸 English</option>
+                                <option value="es">🇪🇸 Spanish</option>
+                                <option value="fr">🇫🇷 French</option>
+                                <option value="de">🇩🇪 German</option>
+                                <option value="ja">🇯🇵 Japanese</option>
+                                <option value="it">🇮🇹 Italian</option>
+                                <option value="pt">🇵🇹 Portuguese</option>
+                                <option value="ru">🇷🇺 Russian</option>
+                                <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
+                                <option value="hi">🇮🇳 Hindi</option>
+                                <option value="ar">🇸🇦 Arabic</option>
                             </select>
                         </div>
                         <div class="translator-body">
@@ -1067,14 +1202,22 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-            // --- GMAIL APP ---
-            // Updated case for 'gmail'
-            case 'gmail':
+case 'gmail':
                 return `
                     <div class="gmail-app">
                         <div class="email-sidebar">
+                            <div class="mail-account-box">
+                                <h3 id="mail-account-title">Your Temporary Inbox</h3>
+                                <p id="mail-account-address">Loading...</p>
+                                <div class="mail-create-form">
+                                    <input type="text" id="mail-username-input" placeholder="Enter a username">
+                                    <select id="mail-domain-select"></select>
+                                </div>
+                                <button id="mail-create-btn">Create Account</button>
+                                <button id="mail-refresh-btn" class="hidden"><i class="fa-solid fa-rotate"></i> Refresh</button>
+                            </div>
                             <div class="email-list">
-                                <p style="padding: 15px; color: var(--text-dim);">Loading inbox...</p>
+                                <p class="email-list-status">Create an account to see emails.</p>
                             </div>
                         </div>
                         <div class="email-content">
