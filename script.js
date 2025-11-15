@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-// --- LOGIN SCREEN LOGIC ---
+    // --- LOGIN SCREEN LOGIC ---
     const PASSWORD_KEY = 'nyxoraOS_password';
     const loginScreen = document.getElementById('login-screen');
     const loginTitle = document.getElementById('login-title');
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginButton = document.getElementById('login-button');
     const forgotPassword = document.getElementById('forgot-password');
     const loginMessage = document.getElementById('login-message');
-    
+
     let storedPassword = localStorage.getItem(PASSWORD_KEY);
 
     function setupLoginUI() {
@@ -64,9 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         // We can use the existing showModal function
         showModal(
-            "Reset Password", 
-            "Are you sure you want to reset your password? This will remove your saved password and you will need to create a new one.", 
-            true, 
+            "Reset Password",
+            "Are you sure you want to reset your password? This will remove your saved password and you will need to create a new one.",
+            true,
             () => {
                 // On Confirm
                 localStorage.removeItem(PASSWORD_KEY);
@@ -79,46 +79,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the Login UI
     setupLoginUI();
     // --- END OF LOGIN LOGIC ---
-   const cursorDot = document.getElementById('custom-cursor-dot');
+    const cursorDot = document.getElementById('custom-cursor-dot');
     const cursorOutline = document.getElementById('custom-cursor-outline');
     // Define all elements that should trigger the interaction state
     const interactiveElements = 'button, a, input, textarea, .window-action-btn, .dock-icon, .app-item, .context-menu-item, .email-item, .install-button, .translator-lang-select';
 
+    // --- CURSOR FIX ---
+    // mousemove now handles positioning AND interaction state.
     document.addEventListener('mousemove', (e) => {
         if (!cursorDot || !cursorOutline) return;
 
         cursorDot.style.left = e.clientX + 'px';
         cursorDot.style.top = e.clientY + 'px';
-        
+
         // Use requestAnimationFrame for smoother outline movement
         requestAnimationFrame(() => {
             cursorOutline.style.left = e.clientX + 'px';
             cursorOutline.style.top = e.clientY + 'px';
         });
-    });
 
-
-    document.addEventListener('mouseover', (e) => {
+        // New logic: Check on every move
         if (e.target.closest(interactiveElements)) {
             document.body.classList.add('interactive-cursor-state');
-        }
-    });
-
-    document.addEventListener('mouseout', (e) => {
-        if (!e.target.closest(interactiveElements)) {
+        } else {
             document.body.classList.remove('interactive-cursor-state');
         }
     });
-    // --- END OF CUSTOM CURSOR LOGIC ---
 
+    // Removed the old mouseover/mouseout listeners
 
     // --- Your existing code starts here ---
     const desktopContainer = document.getElementById('desktop-container');
     const startButton = document.getElementById('start-button');
     const appLauncher = document.querySelector('.app-launcher');
     const taskbar = document.querySelector('.taskbar');
-    const statusButton = document.querySelector('.status-button');
-    const quickSettings = document.querySelector('.quick-settings');
+    const statusButton = document.querySelector('.status-button'); // Still exists for display
+    // const quickSettings = document.getElementById('quick-settings'); // REMOVED
     const dockIconsContainer = document.querySelector('.taskbar-center');
     const appGrid = document.querySelector('.app-grid');
     const allAppItems = Array.from(appGrid.querySelectorAll('.app-item'));
@@ -232,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 document.documentElement.style.setProperty('--accent-blue', accentColorValue);
                 if (changeWallpaperBtn) changeWallpaperBtn.style.background = accentColorValue;
-                
+
                 const settingsContent = windowElement.querySelector('#settings-content');
                 if (settingsContent) settingsContent.innerHTML = getDisplayContent();
                 setupDisplaySettingsListeners(windowElement);
@@ -242,9 +238,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (changeWallpaperBtn) {
             changeWallpaperBtn.addEventListener('click', () => {
                 const currentWallpaperInfo = windowElement.querySelector('.setting-row:nth-child(3) .setting-info small');
-                
+
                 if (currentWallpaper.includes('wallpapersden.com')) {
-                    currentWallpaper = 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)'; 
+                    currentWallpaper = 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)';
                     if (currentWallpaperInfo) currentWallpaperInfo.textContent = 'Current: Blue Gradient';
                 } else {
                     currentWallpaper = 'url("https://images.wallpapersden.com/image/download/tree-alone-dark-evening-4k_bWZpam2UmZqaraWkpJRobWllrWdma2U.jpg")';
@@ -312,39 +308,34 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     desktopContainer.appendChild(contextMenu);
 
+    // --- QUICK SETTINGS REMOVAL ---
+    // References to quickSettings and its statusButton listener are removed.
     function hideAllOverlays(event) {
         if (event && startButton.contains(event.target)) return;
         if (event && appLauncher.contains(event.target)) return;
         appLauncher.classList.add('hidden');
-        
-        if (event && statusButton.contains(event.target)) return;
-        if (event && quickSettings.contains(event.target)) return;
-        quickSettings.classList.add('hidden');
-        
+
+        // statusButton/quickSettings check REMOVED
+
         if (event && contextMenu.contains(event.target)) return;
         contextMenu.classList.add('hidden');
     }
 
     startButton.addEventListener('click', (event) => {
         event.stopPropagation();
-        quickSettings.classList.add('hidden');
+        // quickSettings.classList.add('hidden'); // REMOVED
         contextMenu.classList.add('hidden');
         renderInstalledAppsInLauncher();
         appLauncher.classList.toggle('hidden');
         launcherSearchInput.value = '';
-        filterAppLauncher(''); 
+        filterAppLauncher('');
     });
 
-    statusButton.addEventListener('click', (event) => {
-        event.stopPropagation();
-        appLauncher.classList.add('hidden');
-        contextMenu.classList.add('hidden');
-        quickSettings.classList.toggle('hidden');
-    });
+    // statusButton click listener REMOVED
 
     document.addEventListener('click', hideAllOverlays);
     appLauncher.addEventListener('click', (event) => event.stopPropagation());
-    quickSettings.addEventListener('click', (event) => event.stopPropagation());
+    // quickSettings.addEventListener('click', (event) => event.stopPropagation()); // REMOVED
 
     function filterAppLauncher(searchTerm) {
         const query = searchTerm.toLowerCase();
@@ -379,7 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
             filterAppLauncher(event.target.value);
         });
     }
-    
+
     const openApps = {};
 
     function createNewWindow(appId, appName) {
@@ -392,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
             focusWindow(openApps[appId].element);
             return;
         }
-        
+
         if (openApps[appId] && openApps[appId].isMinimized === true) {
             let windowElement = openApps[appId].element;
             windowElement.classList.remove('minimized');
@@ -429,6 +420,9 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (appId === 'translator') {
             initialWidth = '650px';
             initialHeight = '450px';
+        } else if (appId === 'gmail') { // Size for new Gmail app
+            initialWidth = '850px';
+            initialHeight = '600px';
         }
 
         windowElement.style.width = initialWidth;
@@ -485,6 +479,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (appId === 'translator') {
             initializeTranslatorListeners(windowElement);
         }
+        // --- GMAIL APP ---
+        // Add listener for the new Gmail app
+        if (appId === 'gmail') {
+            initializeGmailAppListeners(windowElement);
+        }
     }
 
     function initializeTranslatorListeners(windowElement) {
@@ -523,7 +522,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     outputArea.value = 'Error: Could not translate.';
                 });
         };
-        
+
         translateBtn.addEventListener('click', doTranslate);
         inputArea.addEventListener('keydown', (e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
@@ -544,7 +543,76 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-   
+    // --- GMAIL APP ---
+    // New function to handle the mock email app logic
+    function initializeGmailAppListeners(windowElement) {
+        const emailListContainer = windowElement.querySelector('.email-list');
+        const emailContentContainer = windowElement.querySelector('.email-content');
+        let emailsData = []; // Store fetched emails
+
+        if (!emailListContainer || !emailContentContainer) return;
+
+        fetch('https://jsonplaceholder.typicode.com/comments?_limit=20') // Get 20 mock emails
+            .then(response => response.json())
+            .then(emails => {
+                emailsData = emails; // Save for later
+                emailListContainer.innerHTML = ''; // Clear "Loading..."
+
+                if (emails.length === 0) {
+                    emailListContainer.innerHTML = '<p style="padding: 15px; color: var(--text-dim);">Inbox is empty.</p>';
+                    return;
+                }
+
+                emails.forEach(email => {
+                    const emailItem = document.createElement('div');
+                    emailItem.className = 'email-item';
+                    // Add a random unread status for visual variety
+                    if (Math.random() > 0.7) {
+                        emailItem.classList.add('unread');
+                    }
+                    emailItem.setAttribute('data-email-id', email.id);
+                    emailItem.innerHTML = `
+                        <span class="email-item-sender">${email.email}</span>
+                        <span class="email-item-subject">${email.name}</span>
+                    `;
+                    emailListContainer.appendChild(emailItem);
+                });
+
+                // Add click listeners
+                emailListContainer.querySelectorAll('.email-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        // Remove active state from others
+                        emailListContainer.querySelectorAll('.email-item.active').forEach(activeItem => {
+                            activeItem.classList.remove('active');
+                        });
+                        // Add active state to current
+                        item.classList.add('active');
+                        item.classList.remove('unread'); // Mark as read
+
+                        const emailId = parseInt(item.getAttribute('data-email-id'), 10);
+                        const email = emailsData.find(e => e.id === emailId);
+
+                        if (email) {
+                            emailContentContainer.innerHTML = `
+                                <div class="email-content-header">
+                                    <h2 class="content-subject">${email.name}</h2>
+                                    <p class="content-from">From: <strong>${email.email}</strong></p>
+                                </div>
+                                <div class="content-body">
+                                    <p>${email.body.replace(/\\n/g, '<br>')}</p>
+                                </div>
+                            `;
+                        }
+                    });
+                });
+
+            })
+            .catch(error => {
+                console.error('Error fetching emails:', error);
+                emailListContainer.innerHTML = '<p style="padding: 15px; color: var(--accent-red);">Failed to load inbox.</p>';
+            });
+    }
+
 
     function addWindowControlListeners(windowElement, appId) {
         const minimizeBtn = windowElement.querySelector('.min-btn');
@@ -596,7 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function focusWindow(windowElement) {
         zIndexCounter++;
         windowElement.style.zIndex = zIndexCounter;
-        
+
         windowElement.addEventListener('mousedown', () => {
             zIndexCounter++;
             windowElement.style.zIndex = zIndexCounter;
@@ -622,7 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isDragging) return;
             let newX = e.clientX - offset.x;
             let newY = e.clientY - offset.y;
-            
+
             const taskbarHeight = 66;
             newY = Math.max(0, newY);
             newY = Math.min(newY, window.innerHeight - taskbarHeight - header.offsetHeight);
@@ -652,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dockItem.classList.add('active');
         } else if (isMinimizing) {
             if (dockItem) {
-                dockItem.classList.remove('active'); 
+                dockItem.classList.remove('active');
             }
         } else {
             if (dockItem && !pinnedApps.includes(appId)) {
@@ -675,7 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <i class="${app.icon}"></i>
             <span class="active-indicator"></span>
         `;
-        
+
         button.addEventListener('click', (event) => {
             event.stopPropagation();
             const appId = button.getAttribute('data-app-id');
@@ -721,7 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dockIconsContainer.appendChild(icon);
             }
         });
-        
+
         Object.keys(openApps).forEach(appId => {
             if (!pinnedApps.includes(appId) && !openApps[appId].isMinimized) {
                 const app = appCatalog.find(a => a.id === appId);
@@ -743,7 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
             draggedIcon.classList.add('dragging');
         }, 0);
     }
-    
+
     function handleDragEnd() {
         if (draggedIcon) {
             draggedIcon.classList.remove('dragging');
@@ -751,7 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
         draggedIcon = null;
         document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
     }
-    
+
     function handleDragOver(e) {
         e.preventDefault();
         const targetIcon = e.target.closest('.dock-icon');
@@ -760,14 +828,14 @@ document.addEventListener('DOMContentLoaded', () => {
             targetIcon.classList.add('drag-over');
         }
     }
-    
+
     function handleDrop(e) {
         e.preventDefault();
         if (!draggedIcon) return;
-        
+
         const droppedOnIcon = e.target.closest('.dock-icon');
         const draggedAppId = draggedIcon.getAttribute('data-app-id');
-        
+
         if (!pinnedApps.includes(draggedAppId)) {
             showModal("Pin App", "Please pin this app to the taskbar before reordering it.");
             return;
@@ -775,10 +843,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (droppedOnIcon && droppedOnIcon !== draggedIcon) {
             const droppedOnAppId = droppedOnIcon.getAttribute('data-app-id');
-            
+
             if (!pinnedApps.includes(droppedOnAppId)) {
-                 showModal("Pin App", "You can only reorder pinned apps.");
-                 return;
+                showModal("Pin App", "You can only reorder pinned apps.");
+                return;
             }
 
             const fromIndex = pinnedApps.indexOf(draggedAppId);
@@ -787,7 +855,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (fromIndex !== -1 && toIndex !== -1) {
                 pinnedApps.splice(fromIndex, 1);
                 pinnedApps.splice(toIndex, 0, draggedAppId);
-                
+
                 savePinnedApps();
                 renderTaskbarIcons();
             }
@@ -816,7 +884,7 @@ document.addEventListener('DOMContentLoaded', () => {
         { id: 'pictures', name: 'Pictures', category: 'Media', icon: 'fa-solid fa-images', iconBg: '#db4437', price: 'Installed', description: 'View your photos.' },
         { id: 'gmail', name: 'Gmail', category: 'Communication', icon: 'fa-solid fa-envelope', iconBg: '#db4437', price: 'Installed', description: 'Connect your email.' },
         { id: 'browser', name: 'Nyxora Browser', category: 'Internet', icon: 'fa-solid fa-globe', iconBg: '#0f9d58', price: 'Installed', description: 'Fast, secure web browsing.' },
-        
+
         { id: 'sound', name: 'Sound Control', category: 'System', icon: 'fa-solid fa-volume-high', iconBg: '#8e44ad', price: 'Free', description: 'Advanced audio mixing tools.' },
         { id: 'record', name: 'Note Recorder', category: 'Productivity', icon: 'fa-solid fa-pencil', iconBg: '#fbbc05', price: 'Free', description: 'Simple note taking and drawing.' },
         { id: 'system', name: 'System Manager', category: 'Utilities', icon: 'fa-solid fa-display', iconBg: '#5865F2', price: '$1.99', description: 'Monitor system performance.' },
@@ -875,7 +943,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-                case 'translator':
+            case 'translator':
                 return `
                     <div class="translator-app">
                         <div class="translator-header">
@@ -964,7 +1032,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-                case 'browser':
+            case 'browser':
                 return `
                     <div class="browser-app">
                         <div class="browser-content">
@@ -999,9 +1067,26 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
+            // --- GMAIL APP ---
+            // Updated case for 'gmail'
+            case 'gmail':
+                return `
+                    <div class="gmail-app">
+                        <div class="email-sidebar">
+                            <div class="email-list">
+                                <p style="padding: 15px; color: var(--text-dim);">Loading inbox...</p>
+                            </div>
+                        </div>
+                        <div class="email-content">
+                            <div class="empty-state">
+                                <i class="fas fa-envelope-open-text" style="font-size: 48px; margin-bottom: 15px;"></i>
+                                <p>Select an email from the list to read it.</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
             case 'files':
             case 'pictures':
-            case 'gmail':
             case 'sound':
             case 'record':
             case 'system':
@@ -1022,34 +1107,34 @@ document.addEventListener('DOMContentLoaded', () => {
         appCatalog
             .filter(app => app.id !== 'appstore')
             .forEach(app => {
-            const isInstalled = installedApps.includes(app.id);
-            const isSystem = app.isSystemApp;
-            
-            let buttonText = 'Get';
-            let buttonAction = 'install';
-            let buttonStyle = `background: var(--accent-blue); color: var(--white);`;
-            let buttonDisabled = false;
+                const isInstalled = installedApps.includes(app.id);
+                const isSystem = app.isSystemApp;
 
-            if (isInstalled) {
-                if (isSystem) {
-                    buttonText = 'Installed';
-                    buttonDisabled = true;
+                let buttonText = 'Get';
+                let buttonAction = 'install';
+                let buttonStyle = `background: var(--accent-blue); color: var(--white);`;
+                let buttonDisabled = false;
+
+                if (isInstalled) {
+                    if (isSystem) {
+                        buttonText = 'Installed';
+                        buttonDisabled = true;
+                    } else {
+                        buttonText = 'Uninstall';
+                        buttonAction = 'uninstall';
+                        buttonStyle = `background: var(--accent-red); color: var(--white);`;
+                    }
                 } else {
-                    buttonText = 'Uninstall';
-                    buttonAction = 'uninstall';
-                    buttonStyle = `background: var(--accent-red); color: var(--white);`;
+                    if (app.price !== 'Free') {
+                        buttonText = app.price;
+                    }
                 }
-            } else {
-                 if (app.price !== 'Free') {
-                    buttonText = app.price;
-                 }
-            }
-            
-            const appCard = document.createElement('div');
-            appCard.classList.add('app-card');
-            appCard.setAttribute('data-app-id', app.id);
-            
-            appCard.innerHTML = `
+
+                const appCard = document.createElement('div');
+                appCard.classList.add('app-card');
+                appCard.setAttribute('data-app-id', app.id);
+
+                appCard.innerHTML = `
                 <div class="app-icon" style="background: ${app.iconBg};"><i class="${app.icon}"></i></div>
                 <div class="app-info">
                     <h3>${app.name}</h3>
@@ -1058,17 +1143,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <button class="install-btn" data-action="${buttonAction}" style="${buttonStyle}" ${buttonDisabled ? 'disabled' : ''}>${buttonText}</button>
             `;
-            appListContainer.appendChild(appCard);
-        });
+                appListContainer.appendChild(appCard);
+            });
 
         windowElement.querySelectorAll('.install-btn').forEach(button => {
             if (button.disabled) return;
-            
+
             button.addEventListener('click', (e) => {
                 const appId = e.target.closest('.app-card').getAttribute('data-app-id');
                 const app = appCatalog.find(a => a.id === appId);
                 if (!app) return;
-                
+
                 const action = e.target.getAttribute('data-action');
 
                 if (action === 'install') {
@@ -1088,7 +1173,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    function uninstallApp(appId, appName, callback = () => {}) {
+    function uninstallApp(appId, appName, callback = () => { }) {
         const app = appCatalog.find(a => a.id === appId);
         if (app && app.isSystemApp) {
             showModal("Uninstall Blocked", `${appName} is a system app and cannot be uninstalled.`);
@@ -1098,17 +1183,17 @@ document.addEventListener('DOMContentLoaded', () => {
         showModal("Confirm Uninstall", `Are you sure you want to uninstall ${appName}?`, true, () => {
             installedApps = installedApps.filter(id => id !== appId);
             saveInstalledApps();
-            
+
             if (pinnedApps.includes(appId)) {
                 pinnedApps = pinnedApps.filter(id => id !== appId);
                 savePinnedApps();
             }
-            
+
             showModal("Uninstalled", `${appName} has been uninstalled.`);
 
             renderInstalledAppsInLauncher();
             renderTaskbarIcons();
-            
+
             if (openApps[appId]) {
                 openApps[appId].element.querySelector('.close-btn').click();
             }
@@ -1119,7 +1204,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function initializeAppStoreListeners(windowElement) {
         renderAppStoreApps(windowElement);
-        
+
         const searchInput = windowElement.querySelector('.appstore-search input');
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.toLowerCase();
@@ -1135,7 +1220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
     }
-    
+
     const calendarEvents = [
         { title: 'Project Review', date: '2025-11-17', color: 'blue' },
         { title: 'Team Lunch', date: '2025-11-19', color: 'green' },
@@ -1150,12 +1235,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const dateString = date.toISOString().substring(0, 10);
         return calendarEvents.filter(event => event.date === dateString);
     }
-    
+
     function renderCalendar(windowElement, date) {
         const year = date.getFullYear();
         const month = date.getMonth();
         const today = new Date();
-        
+
         const monthYearDisplay = windowElement.querySelector('#calendar-month-year');
         const gridBody = windowElement.querySelector('#calendar-month-view');
 
@@ -1188,14 +1273,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             let events = getEventsForDay(currentDate);
             let eventsHTML = events.map(event => `<div class="calendar-event event-${event.color}">${event.title}</div>`).join('');
-            
+
             dayElement.innerHTML = `<span class="day-number">${i}</span>${eventsHTML}`;
             gridBody.appendChild(dayElement);
         }
 
         const totalCells = firstDayOfMonth + daysInMonth;
-        let cellsToFill = 42 - totalCells; 
-        
+        let cellsToFill = 42 - totalCells;
+
         for (let i = 1; i <= cellsToFill; i++) {
             const dayElement = document.createElement('div');
             dayElement.classList.add('calendar-day', 'day-dimmed');
@@ -1210,7 +1295,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const createEventBtn = windowElement.querySelector('.create-event-btn');
         const createEventMenu = windowElement.querySelector('.create-event-menu');
         const saveEventBtn = windowElement.querySelector('#save-event-btn');
-        
+
         renderCalendar(windowElement, activeDate);
 
         windowElement.querySelector('[data-action="prev"]').addEventListener('click', () => {
@@ -1227,7 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
             activeDate = new Date();
             renderCalendar(windowElement, activeDate);
         });
-        
+
         createEventBtn.addEventListener('click', () => {
             createEventMenu.classList.toggle('hidden');
         });
@@ -1259,7 +1344,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const cityInput = windowElement.querySelector('.city-input');
         const searchBtn = windowElement.querySelector('.search-btn');
         const locationBtn = windowElement.querySelector('.location-btn');
-        
+
         const statusEl = windowElement.querySelector('.weather-status');
         const cityEl = windowElement.querySelector('.weather-city');
         const iconEl = windowElement.querySelector('.weather-icon');
@@ -1269,7 +1354,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const windEl = windowElement.querySelector('.weather-wind');
         const feelsEl = windowElement.querySelector('.weather-feels');
         const pressureEl = windowElement.querySelector('.weather-pressure');
-        
+
         let api;
 
         function fetchData() {
@@ -1298,12 +1383,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 cityInput.value = "";
             }
         }
-        
+
         function requestApi(city) {
             api = `https://api.openweathermap.org/data/2.5/weather?q=${city}&units=metric&appid=7245f93fbbeb72a62a17c68a0bb576e6`;
             fetchData();
         }
-        
+
         function onSuccess(position) {
             const { latitude, longitude } = position.coords;
             api = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&units=metric&appid=7245f93fbbeb72a62a17c68a0bb576e6`;
@@ -1319,13 +1404,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 requestApi(cityInput.value);
             }
         });
-        
+
         cityInput.addEventListener('keyup', (e) => {
             if (e.key == "Enter" && cityInput.value) {
                 requestApi(cityInput.value);
             }
         });
-        
+
         locationBtn.addEventListener('click', () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(onSuccess, onError);
@@ -1395,10 +1480,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <div class="settings-section" data-section="apps">
                                 <h3>Installed Apps (Total: ${installedApps.length})</h3>
                                 ${installedApps.map(appId => {
-                                    const app = appCatalog.find(a => a.id === appId);
-                                    if (!app) return '';
-                                    const isSystem = app.isSystemApp;
-                                    return `
+                            const app = appCatalog.find(a => a.id === appId);
+                            if (!app) return '';
+                            const isSystem = app.isSystemApp;
+                            return `
                                     <div class="setting-row">
                                         <div class="setting-info">
                                             <p>${app.name}</p>
@@ -1409,7 +1494,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                         </div>
                                     </div>
                                     `;
-                                }).join('')}
+                        }).join('')}
                                 <div class="setting-row">
                                     <div class="setting-info">
                                         <p>More Apps</p>
@@ -1442,22 +1527,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (tab === 'display') {
                     setupDisplaySettingsListeners(windowElement);
                 }
-                
+
                 if (tab === 'apps') {
                     const appStoreBtn = windowElement.querySelector('#open-app-store-btn');
                     if (appStoreBtn) {
-                         appStoreBtn.style.background = document.documentElement.style.getPropertyValue('--accent-blue') || accentColorValue;
-                         appStoreBtn.addEventListener('click', () => {
-                             createNewWindow('appstore', 'App Store');
-                         });
+                        appStoreBtn.style.background = document.documentElement.style.getPropertyValue('--accent-blue') || accentColorValue;
+                        appStoreBtn.addEventListener('click', () => {
+                            createNewWindow('appstore', 'App Store');
+                        });
                     }
-                    
+
                     windowElement.querySelectorAll('.uninstall-btn').forEach(button => {
-                        if(button.disabled) return;
+                        if (button.disabled) return;
                         button.addEventListener('click', (e) => {
                             const appIdToUninstall = e.target.getAttribute('data-app-id');
                             const appName = appCatalog.find(app => app.id === appIdToUninstall)?.name;
-                            
+
                             uninstallApp(appIdToUninstall, appName, () => {
                                 item.click();
                             });
@@ -1474,7 +1559,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setupDisplaySettingsListeners(windowElement);
         }
     }
-    
+
     const contextDesktopItems = contextMenu.querySelectorAll('#context-view, #context-sort, #context-refresh, #context-desktop-sep, #context-display-settings, #context-personalize');
     const contextAppItems = contextMenu.querySelectorAll('#context-app-sep, #context-open-app, #context-pin, #context-unpin, #context-close-app');
 
@@ -1514,7 +1599,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             contextMenu.classList.add('hidden');
         };
-        
+
         unpinItem.onclick = () => {
             if (!app.isSystemApp) {
                 pinnedApps = pinnedApps.filter(id => id !== appId);
@@ -1530,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             contextMenu.classList.add('hidden');
         };
-        
+
         openItem.onclick = () => {
             createNewWindow(appId, app.name);
             contextMenu.classList.add('hidden');
@@ -1542,8 +1627,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function positionContextMenu(event) {
         let x = event.clientX;
         let y = event.clientY;
-        
-        contextMenu.style.display = 'block'; 
+
+        contextMenu.style.display = 'block';
         let menuWidth = contextMenu.offsetWidth;
         let menuHeight = contextMenu.offsetHeight;
         contextMenu.style.display = '';
@@ -1560,26 +1645,28 @@ document.addEventListener('DOMContentLoaded', () => {
         contextMenu.classList.remove('hidden');
     }
 
+
+
     desktopContainer.addEventListener('contextmenu', (event) => {
         const targetIcon = event.target.closest('.dock-icon');
         const targetWindow = event.target.closest('.window');
-        
+
         if (targetIcon) {
             const appId = targetIcon.getAttribute('data-app-id');
             showAppContextMenu(event, appId);
         } else if (!targetWindow) {
             event.preventDefault();
             hideAllOverlays();
-            
+
             contextDesktopItems.forEach(item => item.style.display = 'flex');
             contextAppItems.forEach(item => item.style.display = 'none');
-            
+
             positionContextMenu(event);
         }
     });
 
     contextMenu.addEventListener('click', (event) => event.stopPropagation());
-    
+
     contextMenu.querySelectorAll('.submenu .menu-item').forEach(item => {
         item.addEventListener('click', (e) => {
             showModal("Action", `Action: ${e.target.textContent.trim()} selected.`);
@@ -1603,7 +1690,7 @@ document.addEventListener('DOMContentLoaded', () => {
         contextMenu.classList.add('hidden');
     });
 
-    function showModal(title, message, showConfirm = false, onConfirm = () => {}) {
+    function showModal(title, message, showConfirm = false, onConfirm = () => { }) {
         let modalOverlay = document.querySelector('.modal-overlay');
         if (modalOverlay) {
             modalOverlay.remove();
@@ -1611,10 +1698,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         modalOverlay = document.createElement('div');
         modalOverlay.className = 'modal-overlay';
-        
+
         const modalContent = document.createElement('div');
         modalContent.className = 'modal-content';
-        
+
         modalContent.innerHTML = `
             <h2>${title}</h2>
             <p>${message}</p>
@@ -1623,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="modal-button primary" id="modal-ok">${showConfirm ? 'Confirm' : 'OK'}</button>
             </div>
         `;
-        
+
         modalOverlay.appendChild(modalContent);
         desktopContainer.appendChild(modalOverlay);
 
@@ -1642,14 +1729,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cancelBtn) {
             cancelBtn.addEventListener('click', closeModal);
         }
-        
+
         modalOverlay.addEventListener('click', (e) => {
             if (e.target === modalOverlay) {
                 closeModal();
             }
         });
     }
-    
+
     renderInstalledAppsInLauncher();
     renderTaskbarIcons();
 });
