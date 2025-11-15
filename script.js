@@ -113,8 +113,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const appLauncher = document.querySelector('.app-launcher');
     const taskbar = document.querySelector('.taskbar');
-    const statusButton = document.querySelector('.status-button'); // Still exists for display
-    // const quickSettings = document.getElementById('quick-settings'); // REMOVED
+    const statusButton = document.querySelector('.status-button'); 
+    const quickSettings = document.getElementById('quick-settings');
     const dockIconsContainer = document.querySelector('.taskbar-center');
     const appGrid = document.querySelector('.app-grid');
     const allAppItems = Array.from(appGrid.querySelectorAll('.app-item'));
@@ -323,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startButton.addEventListener('click', (event) => {
         event.stopPropagation();
-        // quickSettings.classList.add('hidden'); // REMOVED
+        quickSettings.classList.add('hidden'); // REMOVED
         contextMenu.classList.add('hidden');
         renderInstalledAppsInLauncher();
         appLauncher.classList.toggle('hidden');
@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', hideAllOverlays);
     appLauncher.addEventListener('click', (event) => event.stopPropagation());
-    // quickSettings.addEventListener('click', (event) => event.stopPropagation()); // REMOVED
+    quickSettings.addEventListener('click', (event) => event.stopPropagation()); // REMOVED
 
     function filterAppLauncher(searchTerm) {
         const query = searchTerm.toLowerCase();
