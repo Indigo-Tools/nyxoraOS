@@ -1742,119 +1742,87 @@ input:checked+.slider:before {
     background-color: var(--accent-bright-blue);
 }
 
-/* --- 12. Gmail App Styles (New) --- */
-.window[data-app-id="gmail"] .window-body {
-    padding: 0;
-    display: flex;
-    overflow: hidden;
-    background-color: var(--bg-dark);
+.mail-account-box {
+    padding: 15px;
+    border-bottom: 1px solid var(--glass-border);
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
-.gmail-app {
-    display: flex;
-    width: 100%;
-    height: 100%;
-}
-
-.email-sidebar {
-    width: 280px;
-    flex-shrink: 0;
-    background-color: var(--bg-glass-window);
-    border-right: var(--glass-border);
-    overflow-y: auto;
-    padding: 10px 0;
-}
-
-.email-content {
-    flex-grow: 1;
-    background-color: var(--bg-dark);
-    padding: 20px;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-}
-
-.email-list {
-    min-width: 260px; /* Ensure minimum width for the list */
-}
-
-.email-item {
-    padding: 12px 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    cursor: pointer;
-    transition: background-color 0.15s ease;
-}
-
-.email-item.unread {
-    font-weight: 700;
+.mail-account-box h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
     color: var(--text-primary);
 }
 
-.email-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+#mail-account-address {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent-green);
+    margin-bottom: 10px;
+    word-break: break-all;
 }
 
-/* --- GMAIL APP FIX --- */
-/* Added style for the active email item */
-.email-item.active {
+.mail-create-form {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+}
+
+.mail-create-form input,
+.mail-create-form select {
+    width: 100%;
+    background-color: var(--icon-bg-grey);
+    border: 1px solid var(--glass-border);
+    padding: 8px 10px;
+    border-radius: 6px;
+    color: var(--text-primary);
+    font-size: 13px;
+    outline: none;
+}
+
+#mail-create-btn,
+#mail-refresh-btn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
     background-color: var(--accent-blue);
     color: var(--white);
 }
-.email-item.active .email-item-subject {
-    color: var(--white);
+
+#mail-create-btn:hover {
+    background-color: var(--accent-bright-blue);
 }
 
-
-.email-item-sender {
-    font-size: 14px;
-    font-weight: 600;
-    color: inherit;
-    display: block;
-    margin-bottom: 3px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+#mail-refresh-btn {
+    background-color: var(--accent-green);
+}
+#mail-refresh-btn:hover {
+    background-color: #2b8c45;
 }
 
-.email-item-subject {
+.email-list-status {
+    padding: 15px;
+    color: var(--text-dim);
     font-size: 13px;
-    color: var(--text-secondary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
+    text-align: center;
 }
 
-.email-content-header {
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    flex-shrink: 0;
-}
-
-.content-subject {
-    font-size: 24px;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 8px;
-}
-
-.content-from {
-    font-size: 14px;
-    color: var(--text-secondary);
-}
-
+/* Ensure the content body doesn't break layout */
 .content-body {
     font-size: 15px;
     line-height: 1.6;
     color: var(--text-dim);
     flex-grow: 1;
+    /* Add this to contain images/iframes */
+    overflow-y: auto;
+    word-wrap: break-word;
 }
-
-.empty-state {
-    text-align: center;
-    color: var(--text-secondary);
-    margin-top: 50px;
+.content-body * {
+    max-width: 100%;
+    height: auto;
 }
 
 /* --- 2. Custom Cursor Styles (New) --- */
