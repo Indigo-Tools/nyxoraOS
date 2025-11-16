@@ -20,8 +20,10 @@
     <div id="login-screen">
         <div class="login-panel">
             <div class="wallpaper-logo">
-                <img src="assets/nyxora-logo.png" alt="Nyxora Logo" class="nyxora-logo" style="width: 80px; height: 80px; margin-right: -10px;">
-                <p class="nyxora">nyxora</p> <p class="os">OS</p>
+                <img src="assets/nyxora-logo.png" alt="Nyxora Logo" class="nyxora-logo"
+                    style="width: 80px; height: 80px; margin-right: -10px;">
+                <p class="nyxora">nyxora</p>
+                <p class="os">OS</p>
             </div>
             <h3 id="login-title">Create Password</h3>
             <p id="login-message"></p>
@@ -96,7 +98,8 @@
                     <span>Translator</span>
                 </div>
                 <div class="app-item" data-app-id="maps" data-app-name="Map Navigator">
-                    <div class="app-icon" style="background: #34a853;"><i class="fa-solid fa-map-location-dot"></i></div>
+                    <div class="app-icon" style="background: #34a853;"><i class="fa-solid fa-map-location-dot"></i>
+                    </div>
                     <span>Maps</span>
                 </div>
                 <div class="app-item" data-app-id="files" data-app-name="Files">
@@ -109,31 +112,46 @@
                 </div>
             </div>
         </div>
+        <div id="brightness-overlay" class="os-overlay hidden"></div>
+        <div id="nightlight-overlay" class="os-overlay hidden"></div>
 
-        <div class="quick-settings hidden" id="quick-settings">
+        <div id="app-context-menu" class="context-menu hidden" data-context-type="">
+            <div class="context-menu-item" data-action="open">Open</div>
+            <div class="context-menu-item" data-action="pin">Pin to taskbar</div>
+            <div class="context-menu-item" data-action="unpin">Unpin from taskbar</div>
+            <div class="context-menu-item" data-action="close-app">Close Window</div>
+            <div class="context-menu-separator"></div>
+            <div class="context-menu-item" data-action="refresh">Refresh Desktop</div>
+            <div class="context-menu-item" data-action="signout">Sign Out</div>
+            <div class="context-menu-item" data-action="personalize">Personalize</div>
+        </div>
+
+        <div id="quick-settings" class="quick-settings hidden">
             <div class="slider-control">
-                <i class="fa-solid fa-volume-high"></i>
-                <input type="range" min="0" max="100" value="75">
+                <i class="fa-solid fa-lightbulb"></i>
+                <input type="range" min="0" max="100" value="75" id="brightness-slider">
             </div>
             <div class="slider-control">
-                <i class="fa-solid fa-sun"></i>
-                <input type="range" min="0" max="100" value="50">
+                <i class="fa-solid fa-volume-off" id="volume-icon-min"></i>
+                <input type="range" min="0" max="100" value="50" id="volume-slider">
+                <i class="fa-solid fa-volume-high" id="volume-icon-max"></i>
             </div>
             <div class="toggles">
-                <button class="toggle-btn active" id="wifi-toggle">
-                    <i class="fa-solid fa-wifi"></i>
-                    <span>Wi-Fi</span>
-                </button>
-                <button class="toggle-btn active" id="bt-toggle">
-                    <i class="fa-brands fa-bluetooth-b"></i>
-                    <span>Bluetooth</span>
-                </button>
                 <button class="toggle-btn" id="night-toggle">
                     <i class="fa-solid fa-moon"></i>
                     <span>Night Light</span>
                 </button>
+                <button class="toggle-btn" id="signout-btn">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>Sign Out</span>
+                </button>
+                <button class="toggle-btn" id="refresh-btn">
+                    <i class="fa-solid fa-arrows-rotate"></i>
+                    <span>Refresh</span>
+                </button>
             </div>
         </div>
+
     </div>
 
     <footer class="taskbar">

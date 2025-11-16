@@ -196,6 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const appLauncher = document.querySelector('.app-launcher');
     const taskbar = document.querySelector('.taskbar');
+    const appContextMenu = document.getElementById('app-context-menu');
+    const brightnessOverlay = document.getElementById('brightness-overlay');
+    const nightlightOverlay = document.getElementById('nightlight-overlay');
+    const volumeIconMin = document.getElementById('volume-icon-min');
     const statusButton = document.querySelector('.status-button');
     const quickSettings = document.getElementById('quick-settings');
     const dockIconsContainer = document.querySelector('.taskbar-center');
@@ -204,6 +208,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const launcherSearchInput = document.getElementById('launcher-search-input');
 
+    let currentVolume = 50;
+    let isNightLightActive = false;
+    let appContextMenuTarget = null;
     let zIndexCounter = 20;
     let draggedIcon = null;
 
@@ -232,7 +239,92 @@ document.addEventListener('DOMContentLoaded', () => {
         desktopContainer.style.backgroundSize = 'cover';
         desktopContainer.style.backgroundPosition = 'center';
     }
-    
+    function applyBrightness(value) {
+        if (!brightnessOverlay) return;
+
+        // Invert the brightness value: 100 is max bright (0% overlay), 0 is min bright (90% overlay)
+        const overlayOpacity = 1 - (value / 100);
+
+        if (value >= 100) {
+            brightnessOverlay.classList.add('hidden');
+            brightnessOverlay.style.backgroundColor = 'transparent';
+        } else if (value <= 10) {
+            brightnessOverlay.classList.remove('hidden');
+            brightnessOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+        } else {
+            brightnessOverlay.classList.remove('hidden');
+            brightnessOverlay.style.backgroundColor = `rgba(0, 0, 0, ${overlayOpacity})`;
+        }
+
+        const settings = loadSettings();
+        settings.brightness = value;
+        saveSettings(settings);
+    }
+
+    // Utility function to toggle night light
+    function toggleNightLight(force = undefined) {
+        if (!nightlightOverlay) return;
+
+        isNightLightActive = force === undefined ? !isNightLightActive : force;
+
+        if (isNightLightActive) {
+            nightlightOverlay.classList.remove('hidden');
+            document.getElementById('night-toggle')?.classList.add('active');
+        } else {
+            nightlightOverlay.classList.add('hidden');
+            document.getElementById('night-toggle')?.classList.remove('active');
+        }
+
+        const settings = loadSettings();
+        settings.nightLight = isNightLightActive;
+        saveSettings(settings);
+    }
+
+    // Utility function to update volume icon
+    function updateVolumeIcon(volume) {
+        currentVolume = volume;
+        if (!volumeIconMin || !statusButton) return;
+
+        let iconClass = 'fa-solid fa-volume-high';
+
+        if (volume === 0) {
+            iconClass = 'fa-solid fa-volume-mute';
+        } else if (volume < 50) {
+            iconClass = 'fa-solid fa-volume-low';
+        }
+
+        volumeIconMin.className = iconClass;
+        // Update taskbar icon (assuming the last <i> is the volume icon)
+        const taskbarVolumeIcon = statusButton.querySelector('.fa-solid.fa-volume-high, .fa-solid.fa-volume-low, .fa-solid.fa-volume-mute');
+        if (taskbarVolumeIcon) taskbarVolumeIcon.className = iconClass;
+
+        const settings = loadSettings();
+        settings.volume = currentVolume;
+        saveSettings(settings);
+    }
+    function initQuickSettingsUI() {
+        const settings = loadSettings();
+
+        // 1. Brightness
+        const brightnessSlider = document.getElementById('brightness-slider');
+        const savedBrightness = settings.brightness !== undefined ? settings.brightness : 75;
+        if (brightnessSlider) {
+            brightnessSlider.value = savedBrightness;
+            applyBrightness(savedBrightness);
+        }
+
+        // 2. Volume
+        const volumeSlider = document.getElementById('volume-slider');
+        const savedVolume = settings.volume !== undefined ? settings.volume : 50;
+        if (volumeSlider) {
+            volumeSlider.value = savedVolume;
+            updateVolumeIcon(savedVolume);
+        }
+
+        // 3. Night Light
+        const savedNightLight = settings.nightLight || false;
+        toggleNightLight(savedNightLight);
+    }
     // --- APP DRAWER FUNCTION DEFINITION (Inside DOMContentLoaded for scope) ---
     function renderAllAppsInDrawer(drawerElement) {
         const appDrawerContent = document.createElement('div');
@@ -272,6 +364,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- REPLACED renderInstalledAppsInLauncher ---
+    // --- REPLACED renderInstalledAppsInLauncher (Modified to use existing .all-apps-btn and limit) ---
     function renderInstalledAppsInLauncher() {
         allAppItems = Array.from(appGrid.querySelectorAll('.app-item'));
         const maxApps = 12; // Limit to 12 apps
@@ -286,31 +379,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Add 'All Apps' button
-        let allAppsBtn = document.getElementById('all-apps-button');
-        if (!allAppsBtn) {
-            allAppsBtn = document.createElement('button');
-            allAppsBtn.id = 'all-apps-button';
-            allAppsBtn.className = 'all-apps-button';
-            allAppsBtn.innerHTML = '<i class="fa-solid fa-grid-2"></i> All Apps';
-            appLauncher.appendChild(allAppsBtn);
-
-            allAppsBtn.addEventListener('click', () => {
-                appLauncher.classList.add('hidden'); // Close launcher
-                // We need to re-render the app drawer content inside here for up-to-date app list
-                const drawer = document.getElementById(APP_DRAWER_ID);
-                if (drawer) {
-                    renderAllAppsInDrawer(drawer);
-                } else {
-                    // Create and render if it doesn't exist
+        // Use the existing .all-apps-btn (don't create a second one)
+        let allAppsBtn = document.querySelector('.all-apps-btn');
+        if (allAppsBtn) {
+            // Ensure the button opens the Windows 8.1-style menu (App Drawer)
+            if (!allAppsBtn.dataset.listenerAttached) {
+                allAppsBtn.addEventListener('click', () => {
+                    appLauncher.classList.add('hidden'); // Close launcher
+                    // Opens the full-screen app drawer (Windows 8.1 style)
                     createOrToggleAppDrawer();
                     const newDrawer = document.getElementById(APP_DRAWER_ID);
                     if (newDrawer) renderAllAppsInDrawer(newDrawer);
-                }
-                createOrToggleAppDrawer();
-            });
+                });
+                allAppsBtn.dataset.listenerAttached = 'true';
+            }
         }
     }
+
     // --- END REPLACEMENT ---
 
     function getDisplayContent() {
@@ -502,8 +587,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event && quickSettings.contains(event.target)) return;
         quickSettings.classList.add('hidden');
 
-        if (event && contextMenu.contains(event.target)) return;
-        contextMenu.classList.add('hidden');
+        if (appContextMenu) {
+            if (event && appContextMenu.contains(event.target)) return;
+            appContextMenu.classList.add('hidden');
+            appContextMenuTarget = null;
+        }
     }
 
     startButton.addEventListener('click', (event) => {
@@ -726,7 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-  function initializeGmailAppListeners(windowElement) {
+    function initializeGmailAppListeners(windowElement) {
         const emailListContainer = windowElement.querySelector('.email-list');
         const emailContentContainer = windowElement.querySelector('.email-content');
         const statusText = windowElement.querySelector('.email-list-status');
@@ -746,7 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let messages = [];
 
         const API_URL = 'https://api.mail.tm';
-        
+
         // --- PERSISTENCE LOAD (Modified) ---
         const savedAccount = loadEmailAccount();
         if (savedAccount) {
@@ -802,51 +890,51 @@ document.addEventListener('DOMContentLoaded', () => {
 
             fetch(`${API_URL}/accounts`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     address: userAddress,
                     password: password
                 })
             })
-            .then(res => res.json())
-            .then(accountData => {
-                if (accountData.address) {
-                    // Account created, now get token
-                    return fetch(`${API_URL}/token`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({
-                            address: userAddress,
-                            password: password
-                        })
-                    });
-                } else {
-                    throw new Error(accountData['hydra:description'] || 'Failed to create account.');
-                }
-            })
-            .then(res => res.json())
-            .then(tokenData => {
-                if (tokenData.token) {
-                    accountToken = tokenData.token;
-                    // --- SAVE ACCOUNT TO CACHE ---
-                    saveEmailAccount({ token: accountToken, address: userAddress });
+                .then(res => res.json())
+                .then(accountData => {
+                    if (accountData.address) {
+                        // Account created, now get token
+                        return fetch(`${API_URL}/token`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                address: userAddress,
+                                password: password
+                            })
+                        });
+                    } else {
+                        throw new Error(accountData['hydra:description'] || 'Failed to create account.');
+                    }
+                })
+                .then(res => res.json())
+                .then(tokenData => {
+                    if (tokenData.token) {
+                        accountToken = tokenData.token;
+                        // --- SAVE ACCOUNT TO CACHE ---
+                        saveEmailAccount({ token: accountToken, address: userAddress });
 
-                    // Update UI
-                    accountTitle.textContent = "Your Active Inbox";
-                    addressDisplay.textContent = userAddress;
-                    createForm.classList.add('hidden');
-                    createBtn.classList.add('hidden');
-                    refreshBtn.classList.remove('hidden');
-                    statusText.textContent = 'Fetching emails...';
-                    getMessages();
-                } else {
-                    throw new Error('Failed to get auth token.');
-                }
-            })
-            .catch(err => {
-                addressDisplay.textContent = 'Error.';
-                showModal("Error", `Could not create account: ${err.message}`);
-            });
+                        // Update UI
+                        accountTitle.textContent = "Your Active Inbox";
+                        addressDisplay.textContent = userAddress;
+                        createForm.classList.add('hidden');
+                        createBtn.classList.add('hidden');
+                        refreshBtn.classList.remove('hidden');
+                        statusText.textContent = 'Fetching emails...';
+                        getMessages();
+                    } else {
+                        throw new Error('Failed to get auth token.');
+                    }
+                })
+                .catch(err => {
+                    addressDisplay.textContent = 'Error.';
+                    showModal("Error", `Could not create account: ${err.message}`);
+                });
         }
 
         // 3. Get messages from inbox
@@ -859,23 +947,23 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch(`${API_URL}/messages`, {
                 headers: { 'Authorization': `Bearer ${accountToken}` }
             })
-            .then(res => res.json())
-            .then(data => {
-                if (data && data['hydra:member']) {
-                    messages = data['hydra:member'];
-                    if (messages.length === 0) {
-                        statusText.textContent = 'Your inbox is empty.';
+                .then(res => res.json())
+                .then(data => {
+                    if (data && data['hydra:member']) {
+                        messages = data['hydra:member'];
+                        if (messages.length === 0) {
+                            statusText.textContent = 'Your inbox is empty.';
+                        } else {
+                            statusText.textContent = '';
+                            renderMessageList();
+                        }
                     } else {
-                        statusText.textContent = '';
-                        renderMessageList();
+                        throw new Error('Could not fetch messages.');
                     }
-                } else {
-                    throw new Error('Could not fetch messages.');
-                }
-            })
-            .catch(err => {
-                 statusText.textContent = `Error: ${err.message}`;
-            });
+                })
+                .catch(err => {
+                    statusText.textContent = `Error: ${err.message}`;
+                });
         }
 
         // 4. Render the list of messages
@@ -910,9 +998,9 @@ document.addEventListener('DOMContentLoaded', () => {
             fetch(`${API_URL}/messages/${id}`, {
                 headers: { 'Authorization': `Bearer ${accountToken}` }
             })
-            .then(res => res.json())
-            .then(msg => {
-                emailContentContainer.innerHTML = `
+                .then(res => res.json())
+                .then(msg => {
+                    emailContentContainer.innerHTML = `
                     <div class="email-content-header">
                         <h2 class="content-subject">${msg.subject}</h2>
                         <p class="content-from">From: <strong>${msg.from.address}</strong></p>
@@ -921,19 +1009,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         ${msg.html ? msg.html.join('') : `<p>${msg.text}</p>`}
                     </div>
                 `;
-                // Mark as seen on the server
-                fetch(`${API_URL}/messages/${id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${accountToken}`,
-                        'Content-Type': 'application/merge-patch+json'
-                    },
-                    body: JSON.stringify({ seen: true })
+                    // Mark as seen on the server
+                    fetch(`${API_URL}/messages/${id}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${accountToken}`,
+                            'Content-Type': 'application/merge-patch+json'
+                        },
+                        body: JSON.stringify({ seen: true })
+                    });
+                })
+                .catch(() => {
+                    emailContentContainer.innerHTML = '<p>Error loading message.</p>';
                 });
-            })
-            .catch(() => {
-                emailContentContainer.innerHTML = '<p>Error loading message.</p>';
-            });
         }
 
         // --- Event Listeners ---
@@ -1996,7 +2084,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-
     desktopContainer.addEventListener('contextmenu', (event) => {
         const targetIcon = event.target.closest('.dock-icon');
         const targetWindow = event.target.closest('.window');
@@ -2086,7 +2173,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
     // --- LOAD SAVED SETTINGS ON INIT ---
     function applySavedSettings() {
         const settings = loadSettings();
@@ -2124,7 +2211,160 @@ document.addEventListener('DOMContentLoaded', () => {
             desktopContainer.style.backgroundPosition = 'center';
         }
     }
-    
+    function showContextMenu(x, y, targetElement) {
+        appContextMenuTarget = targetElement;
+        const appId = targetElement.dataset.appId;
+        const isPinned = pinnedApps.includes(appId);
+        const openWindow = openApps[appId];
+
+        appContextMenu.setAttribute('data-app-id', appId);
+        appContextMenu.classList.remove('hidden');
+        appContextMenu.classList.remove('taskbar-context');
+        appContextMenu.style.transform = `none`; // Reset transform for initial sizing
+
+        // Reset display state
+        document.querySelectorAll('[data-action="open"]').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('[data-action="pin"]').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('[data-action="unpin"]').forEach(el => el.style.display = 'block');
+        document.querySelectorAll('[data-action="close-app"]').forEach(el => el.style.display = 'block');
+
+        if (targetElement.classList.contains('dock-icon')) {
+            // Taskbar icon context menu: Appears above the taskbar
+            appContextMenu.classList.add('taskbar-context');
+            const taskbarRect = taskbar.getBoundingClientRect();
+
+            // Position for dock icon: center horizontally, above taskbar
+            appContextMenu.style.left = `${x}px`;
+            appContextMenu.style.top = 'auto';
+            appContextMenu.style.bottom = `${window.innerHeight - taskbarRect.top + 10}px`; // Above taskbar + padding
+
+            // Calculate and apply transform to center it above the click (needs to be done after display block)
+            const menuWidth = appContextMenu.offsetWidth;
+            appContextMenu.style.transform = `translateX(-${menuWidth / 2}px)`;
+
+            document.querySelectorAll('[data-action="pin"]').forEach(el => el.style.display = 'none');
+            document.querySelectorAll('[data-action="unpin"]').forEach(el => el.style.display = 'none');
+
+            // Adjust options if app is not currently open
+            if (!openWindow) {
+                document.querySelectorAll('[data-action="close-app"]').forEach(el => el.style.display = 'none');
+            } else {
+                document.querySelectorAll('[data-action="open"]').forEach(el => el.style.display = 'none');
+            }
+
+        } else if (targetElement.classList.contains('app-item')) {
+            // Launcher app context menu: Appears at click location
+            appContextMenu.style.left = `${x}px`;
+            appContextMenu.style.top = `${y}px`;
+            appContextMenu.style.bottom = `auto`;
+
+            document.querySelectorAll('[data-action="unpin"]').forEach(el => el.style.display = isPinned ? 'block' : 'none');
+            document.querySelectorAll('[data-action="pin"]').forEach(el => el.style.display = isPinned ? 'none' : 'block');
+            document.querySelectorAll('[data-action="close-app"]').forEach(el => el.style.display = openWindow ? 'block' : 'none');
+        }
+    }
+
+    // Context Menu Event Listener for Right-Clicks
+    desktopContainer.addEventListener('contextmenu', (e) => {
+        // Allow default context menu for inputs/textareas
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+        const dockIcon = e.target.closest('.dock-icon:not(#start-button)'); // Exclude start button
+        const appItem = e.target.closest('.app-item');
+
+        if (dockIcon || appItem) {
+            e.preventDefault();
+            hideAllOverlays(e); // Hide other menus
+            const targetElement = dockIcon || appItem;
+            showContextMenu(e.clientX, e.clientY, targetElement);
+        } else {
+            // Hide context menu if clicked elsewhere
+            appContextMenu.classList.add('hidden');
+        }
+    });
+
+    // Context Menu Action Handlers
+    appContextMenu.addEventListener('click', (e) => {
+        const action = e.target.dataset.action;
+        const appId = appContextMenu.dataset.appId;
+        const openWindow = openApps[appId];
+
+        switch (action) {
+            case 'open':
+                if (appId) {
+                    const app = appCatalog.find(a => a.id === appId);
+                    if (app) createNewWindow(appId, app.name);
+                }
+                break;
+            case 'pin':
+                if (appId && !pinnedApps.includes(appId)) {
+                    pinnedApps.push(appId);
+                    savePinnedApps();
+                    renderTaskbarIcons();
+                }
+                break;
+            case 'unpin':
+                if (appId) {
+                    pinnedApps = pinnedApps.filter(id => id !== appId);
+                    savePinnedApps();
+                    renderTaskbarIcons();
+                }
+                break;
+            case 'close-app':
+                if (openWindow) {
+                    closeWindow(openWindow.element);
+                }
+                break;
+            case 'refresh':
+                // Full desktop refresh
+                location.reload();
+                break;
+            case 'signout':
+                // Clear password and go to login screen
+                localStorage.removeItem(PASSWORD_KEY);
+                location.reload();
+                break;
+            case 'personalize':
+                createNewWindow('settings', 'Settings');
+                break;
+        }
+
+        appContextMenu.classList.add('hidden');
+        appContextMenuTarget = null;
+    });
+
+    const brightnessSlider = document.getElementById('brightness-slider');
+    const volumeSlider = document.getElementById('volume-slider');
+
+    if (brightnessSlider) {
+        brightnessSlider.addEventListener('input', (e) => {
+            applyBrightness(parseInt(e.target.value));
+        });
+    }
+
+    if (volumeSlider) {
+        volumeSlider.addEventListener('input', (e) => {
+            updateVolumeIcon(parseInt(e.target.value));
+        });
+    }
+
+    // 2. Toggles (Night Light)
+    document.getElementById('night-toggle')?.addEventListener('click', () => {
+        toggleNightLight();
+    });
+
+    // 3. New Functionality Buttons (Sign Out, Refresh)
+    document.getElementById('signout-btn')?.addEventListener('click', () => {
+        localStorage.removeItem(PASSWORD_KEY);
+        location.reload();
+    });
+
+    document.getElementById('refresh-btn')?.addEventListener('click', () => {
+        location.reload();
+    });
+
+    // Final Initialization: Ensure this runs at the end of DOMContentLoaded
+    initQuickSettingsUI();
     applySavedSettings();
     // --- END LOAD SAVED SETTINGS ---
 
