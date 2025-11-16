@@ -2499,6 +2499,170 @@ document.addEventListener('DOMContentLoaded', () => {
         location.reload();
     });
 
+    let notificationIdCounter = 0;
+    const notifications = [];
+    const notificationPanel = document.getElementById('notification-panel');
+    const notificationList = document.getElementById('notification-list');
+    const notificationButton = document.getElementById('notification-button');
+    const notificationCountSpan = document.getElementById('notification-count');
+    const clearAllButton = document.getElementById('clear-all-notifications');
+
+    // Helper to update the counter and 'Clear All' button state
+    function updateNotificationUI() {
+        const count = notifications.length;
+        notificationCountSpan.textContent = count;
+
+        if (count > 0) {
+            notificationCountSpan.classList.remove('hidden');
+            clearAllButton.removeAttribute('disabled');
+            notificationList.querySelector('.no-notifications')?.remove();
+        } else {
+            notificationCountSpan.classList.add('hidden');
+            clearAllButton.setAttribute('disabled', true);
+            if (!notificationList.querySelector('.no-notifications')) {
+                notificationList.innerHTML = '<p class="no-notifications">No new notifications.</p>';
+            }
+        }
+    }
+
+    // Function to add a new notification with animation
+    function addNotification(title, message, iconClass = 'fa-solid fa-circle-check', type = 'success') {
+        notificationIdCounter++;
+        const notificationId = `notif-${notificationIdCounter}`;
+
+        const notification = {
+            id: notificationId,
+            title: title,
+            message: message,
+            icon: iconClass,
+            type: type,
+            timestamp: Date.now()
+        };
+        notifications.unshift(notification); // Add to the start of the array
+
+        const item = document.createElement('div');
+        item.className = 'notification-item';
+        item.id = notificationId;
+        item.innerHTML = `
+        <i class="${iconClass}" style="color: var(--accent-blue); align-self: center;"></i>
+        <div>
+            <h4>${title}</h4>
+            <p>${message}</p>
+        </div>
+    `;
+
+        // Insert at the top of the list
+        if (notificationList.querySelector('.no-notifications')) {
+            notificationList.innerHTML = '';
+        }
+        notificationList.prepend(item);
+
+        // Fade-in animation
+        setTimeout(() => {
+            item.style.opacity = 1;
+            item.style.transform = 'translateY(0)';
+        }, 10);
+
+        // Add swipe/drag functionality
+        addSwipeToDismiss(item);
+
+        updateNotificationUI();
+
+        // Auto-dismiss after 8 seconds (optional)
+        setTimeout(() => dismissNotification(notificationId), 8000);
+    }
+
+    // Function to remove a notification with swipe animation
+    function dismissNotification(id) {
+        const index = notifications.findIndex(n => n.id === id);
+        if (index === -1) return;
+
+        const item = document.getElementById(id);
+        if (!item) return;
+
+        // Start the dynamic animation (swipe out)
+        item.style.transform = 'translateX(100%)';
+        item.style.opacity = 0;
+
+        // After animation, remove from DOM and array
+        setTimeout(() => {
+            item.remove();
+            notifications.splice(index, 1);
+            updateNotificationUI();
+        }, 300);
+    }
+
+    // Swipe/Drag implementation
+    function addSwipeToDismiss(item) {
+        let startX;
+        let isDragging = false;
+        let initialX;
+
+        item.addEventListener('mousedown', (e) => {
+            if (e.button !== 0) return; // Only listen for left click
+            startX = e.clientX;
+            initialX = item.getBoundingClientRect().left;
+            isDragging = true;
+            item.style.transition = 'none'; // Disable CSS transition for smooth drag
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDragging) return;
+            const dx = e.clientX - startX;
+            item.style.transform = `translateX(${dx}px)`;
+            item.style.opacity = 1 - Math.abs(dx) / 300; // Fade out as it moves
+        });
+
+        document.addEventListener('mouseup', (e) => {
+            if (!isDragging) return;
+            isDragging = false;
+
+            const rect = item.getBoundingClientRect();
+            const movedDistance = e.clientX - startX;
+
+            item.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out'; // Restore transition
+
+            if (Math.abs(movedDistance) > rect.width * 0.4) {
+                // Dismiss if moved more than 40% of its width
+                dismissNotification(item.id);
+            } else {
+                // Snap back
+                item.style.transform = 'translateX(0)';
+                item.style.opacity = 1;
+            }
+        });
+    }
+
+
+    // --- DOMContentLoaded Logic ---
+    document.addEventListener('DOMContentLoaded', () => {
+        // ... existing setup ...
+
+        // Toggle Notification Panel
+        notificationButton?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            quickSettings.classList.add('hidden'); // Close quick settings
+            notificationPanel.classList.toggle('hidden');
+        });
+
+        // Clear All Button
+        clearAllButton?.addEventListener('click', () => {
+            const ids = notifications.map(n => n.id);
+            ids.forEach(id => dismissNotification(id));
+            notificationPanel.classList.add('hidden');
+        });
+
+        // Handle clicks outside to close the panel
+        document.addEventListener('click', (e) => {
+            if (notificationPanel && !notificationPanel.classList.contains('hidden') &&
+                !notificationPanel.contains(e.target) && !notificationButton.contains(e.target)) {
+                notificationPanel.classList.add('hidden');
+            }
+        });
+
+        // Initial UI setup
+        updateNotificationUI();
+    });
     // Final Initialization: Ensure this runs at the end of DOMContentLoaded
     initQuickSettingsUI();
     applySavedSettings();

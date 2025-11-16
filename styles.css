@@ -2295,3 +2295,145 @@ input:checked+.slider:before {
 #nightlight-overlay {
     background-color: rgba(255, 100, 0, 0.15); /* Subtle orange tint */
 }
+
+/* --- Notification Panel Styles --- */
+#notification-button {
+    position: relative;
+    padding: 0 10px;
+}
+
+#notification-icon {
+    /* Base color for the bell */
+    color: var(--text-primary);
+}
+
+.notification-count {
+    position: absolute;
+    top: 5px;
+    right: 0px;
+    background-color: var(--accent-red);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 50%;
+    min-width: 15px;
+    text-align: center;
+    line-height: 1.2;
+    transition: transform 0.2s ease-out;
+}
+
+.notification-count.hidden {
+    display: none;
+}
+
+.notification-panel {
+    position: fixed;
+    bottom: 50px; /* Above taskbar */
+    right: 15px;
+    width: 350px;
+    max-height: 500px;
+    background-color: var(--bg-glass-modal);
+    backdrop-filter: blur(20px);
+    border-radius: var(--border-radius-inner);
+    border: var(--glass-border);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 10001; /* Above quick-settings */
+    display: flex;
+    flex-direction: column;
+
+    /* Initial hidden state for animation */
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    pointer-events: none; /* Block interaction when hidden */
+}
+
+.notification-panel.hidden {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    pointer-events: none;
+}
+
+.notification-panel:not(.hidden) {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: var(--glass-border);
+}
+
+.panel-header h3 {
+    margin: 0;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.panel-content {
+    overflow-y: auto;
+    flex-grow: 1;
+    padding: 10px;
+}
+
+.no-notifications {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 20px 0;
+}
+
+/* Individual Notification Styling */
+.notification-item {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    cursor: grab;
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out, background-color 0.1s;
+    user-select: none;
+    display: flex;
+    gap: 10px;
+    border-left: 3px solid var(--accent-blue);
+    position: relative; /* Needed for swipe animation */
+}
+
+.notification-item:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.notification-item h4 {
+    margin: 0;
+    font-size: 14px;
+    color: var(--text-primary);
+}
+
+.notification-item p {
+    margin: 2px 0 0;
+    font-size: 12px;
+    color: var(--text-dim);
+}
+
+/* --- App Installation Animation (Pulsing Icon) --- */
+@keyframes install-pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--accent-blue-rgb), 0.7);
+    }
+    70% {
+        transform: scale(1.05);
+        box-shadow: 0 0 0 10px rgba(var(--accent-blue-rgb), 0);
+    }
+    100% {
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(var(--accent-blue-rgb), 0);
+    }
+}
+
+.app-item.installing i {
+    animation: install-pulse 1.5s infinite;
+}

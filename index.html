@@ -161,23 +161,26 @@
         <div class="taskbar-center">
         </div>
         <div class="taskbar-right">
+            <span id="date">May 15, 2025</span>
+            <button class="status-button" id="status-button">
+                <i class="fa-solid fa-wifi"></i>
+                <i class="fa-solid fa-battery-three-quarters"></i>
+                <i class="fa-solid fa-volume-high"></i>
+                <span id="time">10:00</span>
+            </button>
             <button class="status-button" id="notification-button" title="Notifications">
                 <i class="fa-solid fa-bell" id="notification-icon"></i>
                 <span class="notification-count hidden" id="notification-count">0</span>
             </button>
-
-            <span id="date">May 15, 2025</span>
-        </div>
-
-        <div id="notification-panel" class="notification-panel hidden">
-            <div class="panel-header">
-                <h3>Notifications</h3>
-                <button id="clear-all-notifications" disabled>Clear All</button>
+            <div id="notification-panel" class="notification-panel hidden">
+                <div class="panel-header">
+                    <h3>Notifications</h3>
+                    <button id="clear-all-notifications" disabled>Clear All</button>
+                </div>
+                <div class="panel-content" id="notification-list">
+                    <p class="no-notifications">No new notifications.</p>
+                </div>
             </div>
-            <div class="panel-content" id="notification-list">
-                <p class="no-notifications">No new notifications.</p>
-            </div>
-        </div>
     </footer>
     <script src="script.js"></script>
 </body>
