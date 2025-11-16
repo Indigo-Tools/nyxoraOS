@@ -1,3 +1,84 @@
+// --- CACHE / PERSISTENCE FUNCTIONS (New) ---
+const EMAIL_ACCOUNT_KEY = 'nyxoraOS_email_account';
+const SETTINGS_KEY = 'nyxoraOS_settings';
+
+function saveEmailAccount(accountData) {
+    try {
+        localStorage.setItem(EMAIL_ACCOUNT_KEY, JSON.stringify(accountData));
+        // showAlert('Success', 'Email account saved successfully.', false); // Requires showAlert to be globally accessible
+    } catch (e) {
+        console.error('Could not save email account data:', e);
+    }
+}
+
+function loadEmailAccount() {
+    try {
+        const storedData = localStorage.getItem(EMAIL_ACCOUNT_KEY);
+        if (storedData) {
+            return JSON.parse(storedData);
+        }
+    } catch (e) {
+        console.error('Error parsing stored email account:', e);
+    }
+    return null;
+}
+
+function saveSettings(settingsObject) {
+    try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(settingsObject));
+    } catch (e) {
+        console.error('Failed to save settings to localStorage:', e);
+    }
+}
+
+function loadSettings() {
+    try {
+        const storedSettings = localStorage.getItem(SETTINGS_KEY);
+        return storedSettings ? JSON.parse(storedSettings) : {};
+    } catch (e) {
+        console.error('Failed to load or parse settings from localStorage:', e);
+        return {};
+    }
+}
+
+
+// --- APP DRAWER LOGIC (New) ---
+const APP_DRAWER_ID = 'app-drawer';
+let isAppDrawerOpen = false;
+
+function createOrToggleAppDrawer(forceClose = false) {
+    const desktop = document.getElementById('desktop-container'); // desktopContainer needs to be defined
+    let drawer = document.getElementById(APP_DRAWER_ID);
+
+    if (forceClose) {
+        if (drawer) {
+            drawer.classList.remove('open');
+            setTimeout(() => drawer.remove(), 300);
+        }
+        isAppDrawerOpen = false;
+        return;
+    }
+
+    if (!drawer) {
+        drawer = document.createElement('div');
+        drawer.id = APP_DRAWER_ID;
+        drawer.className = 'app-drawer';
+        desktop.appendChild(drawer);
+        // This function will need access to appCatalog and installedApps, which are defined inside DOMContentLoaded
+        // We will call the function 'renderAllAppsInDrawer' from within the DOMContentLoaded scope.
+    }
+
+    if (isAppDrawerOpen) {
+        createOrToggleAppDrawer(true);
+    } else {
+        drawer.classList.add('open');
+        isAppDrawerOpen = true;
+    }
+}
+
+// NOTE: renderAllAppsInDrawer and renderInstalledAppsInLauncher are defined inside DOMContentLoaded below
+// to ensure they have access to appCatalog, installedApps, and createNewWindow.
+
 document.addEventListener('DOMContentLoaded', () => {
     // --- LOGIN SCREEN LOGIC ---
     const PASSWORD_KEY = 'nyxoraOS_password';
@@ -49,6 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem(PASSWORD_KEY, pass);
             storedPassword = pass;
             loginScreen.classList.add('hidden');
+            // Save initial settings immediately after creation (using general cache function)
+            saveSettings({ initialSetup: true });
         }
     }
 
@@ -82,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cursorDot = document.getElementById('custom-cursor-dot');
     const cursorOutline = document.getElementById('custom-cursor-outline');
     // Define all elements that should trigger the interaction state
-    const interactiveElements = 'button, a, input, textarea, .window-action-btn, .dock-icon, .app-item, .context-menu-item, .email-item, .install-button, .translator-lang-select, select';
+    const interactiveElements = 'button, a, input, textarea, .window-action-btn, .dock-icon, .app-item, .context-menu-item, .email-item, .install-button, .translator-lang-select, select, .app-icon-large, .close-drawer-btn'; // Added new elements
 
     // --- CURSOR FIX ---
     // mousemove now handles positioning AND interaction state.
@@ -113,11 +196,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const startButton = document.getElementById('start-button');
     const appLauncher = document.querySelector('.app-launcher');
     const taskbar = document.querySelector('.taskbar');
-    const statusButton = document.querySelector('.status-button'); 
+    const statusButton = document.querySelector('.status-button');
     const quickSettings = document.getElementById('quick-settings');
     const dockIconsContainer = document.querySelector('.taskbar-center');
     const appGrid = document.querySelector('.app-grid');
-    const allAppItems = Array.from(appGrid.querySelectorAll('.app-item'));
+    let allAppItems = Array.from(appGrid.querySelectorAll('.app-item')); // Re-fetch when needed
+
     const launcherSearchInput = document.getElementById('launcher-search-input');
 
     let zIndexCounter = 20;
@@ -148,6 +232,86 @@ document.addEventListener('DOMContentLoaded', () => {
         desktopContainer.style.backgroundSize = 'cover';
         desktopContainer.style.backgroundPosition = 'center';
     }
+    
+    // --- APP DRAWER FUNCTION DEFINITION (Inside DOMContentLoaded for scope) ---
+    function renderAllAppsInDrawer(drawerElement) {
+        const appDrawerContent = document.createElement('div');
+        appDrawerContent.className = 'app-drawer-content';
+
+        // Filter the app catalog to only show installed apps, then sort by name
+        const allInstalledApps = appCatalog
+            .filter(app => installedApps.includes(app.id))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        appDrawerContent.innerHTML = `
+            <div class="app-drawer-header">
+                <h3>All Apps</h3>
+                <button class="close-drawer-btn" onclick="createOrToggleAppDrawer(true)"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="all-apps-grid">
+                ${allInstalledApps.map(app => `
+                    <button class="app-icon-large" data-app-id="${app.id}" title="${app.name}">
+                        <i class="fa-solid ${app.icon}"></i>
+                        <span>${app.name}</span>
+                    </button>
+                `).join('')}
+            </div>
+        `;
+
+        drawerElement.innerHTML = '';
+        drawerElement.appendChild(appDrawerContent);
+
+        appDrawerContent.querySelectorAll('.app-icon-large').forEach(icon => {
+            icon.addEventListener('click', (e) => {
+                const appId = e.currentTarget.dataset.appId;
+                const app = appCatalog.find(a => a.id === appId);
+                if (app) createNewWindow(appId, app.name);
+                createOrToggleAppDrawer(true);
+            });
+        });
+    }
+
+    // --- REPLACED renderInstalledAppsInLauncher ---
+    function renderInstalledAppsInLauncher() {
+        allAppItems = Array.from(appGrid.querySelectorAll('.app-item'));
+        const maxApps = 12; // Limit to 12 apps
+        const displayedApps = installedApps.slice(0, maxApps);
+
+        allAppItems.forEach(item => {
+            const appId = item.getAttribute('data-app-id');
+            if (displayedApps.includes(appId)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        // Add 'All Apps' button
+        let allAppsBtn = document.getElementById('all-apps-button');
+        if (!allAppsBtn) {
+            allAppsBtn = document.createElement('button');
+            allAppsBtn.id = 'all-apps-button';
+            allAppsBtn.className = 'all-apps-button';
+            allAppsBtn.innerHTML = '<i class="fa-solid fa-grid-2"></i> All Apps';
+            appLauncher.appendChild(allAppsBtn);
+
+            allAppsBtn.addEventListener('click', () => {
+                appLauncher.classList.add('hidden'); // Close launcher
+                // We need to re-render the app drawer content inside here for up-to-date app list
+                const drawer = document.getElementById(APP_DRAWER_ID);
+                if (drawer) {
+                    renderAllAppsInDrawer(drawer);
+                } else {
+                    // Create and render if it doesn't exist
+                    createOrToggleAppDrawer();
+                    const newDrawer = document.getElementById(APP_DRAWER_ID);
+                    if (newDrawer) renderAllAppsInDrawer(newDrawer);
+                }
+                createOrToggleAppDrawer();
+            });
+        }
+    }
+    // --- END REPLACEMENT ---
 
     function getDisplayContent() {
         const isLightMode = document.documentElement.classList.contains('light-mode');
@@ -206,6 +370,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     document.documentElement.classList.add('light-mode');
                 }
+                // Save setting
+                const settings = loadSettings();
+                settings.isLightMode = !e.target.checked;
+                saveSettings(settings);
             });
         }
 
@@ -232,6 +400,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 const settingsContent = windowElement.querySelector('#settings-content');
                 if (settingsContent) settingsContent.innerHTML = getDisplayContent();
                 setupDisplaySettingsListeners(windowElement);
+
+                // Save setting
+                const settings = loadSettings();
+                settings.accentColor = currentAccentColor;
+                saveSettings(settings);
             });
         }
 
@@ -250,6 +423,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 desktopContainer.style.backgroundImage = currentWallpaper;
                 desktopContainer.style.backgroundSize = 'cover';
                 desktopContainer.style.backgroundPosition = 'center';
+
+                // Save setting
+                const settings = loadSettings();
+                settings.wallpaper = currentWallpaper;
+                saveSettings(settings);
             });
         }
     }
@@ -308,15 +486,18 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     desktopContainer.appendChild(contextMenu);
 
-    
+
     // --- QUICK SETTINGS FIX ---
-    // This function is now correctly implemented
     function hideAllOverlays(event) {
         if (event && startButton.contains(event.target)) return;
         if (event && appLauncher.contains(event.target)) return;
         appLauncher.classList.add('hidden');
 
-        // Add these lines back in
+        // Check if the target is inside the App Drawer before closing it
+        const drawer = document.getElementById(APP_DRAWER_ID);
+        if (drawer && drawer.contains(event.target)) return;
+        createOrToggleAppDrawer(true); // Close drawer if clicking outside
+
         if (event && statusButton.contains(event.target)) return;
         if (event && quickSettings.contains(event.target)) return;
         quickSettings.classList.add('hidden');
@@ -329,6 +510,7 @@ document.addEventListener('DOMContentLoaded', () => {
         event.stopPropagation();
         quickSettings.classList.add('hidden'); // This is correct, start button closes QS
         contextMenu.classList.add('hidden');
+        createOrToggleAppDrawer(true); // Close drawer
         renderInstalledAppsInLauncher();
         appLauncher.classList.toggle('hidden');
         launcherSearchInput.value = '';
@@ -336,11 +518,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- QUICK SETTINGS FIX ---
-    // Added the click listener for the status button
     statusButton.addEventListener('click', (event) => {
         event.stopPropagation();
         appLauncher.classList.add('hidden');
         contextMenu.classList.add('hidden');
+        createOrToggleAppDrawer(true); // Close drawer
         quickSettings.classList.toggle('hidden');
     });
 
@@ -359,17 +541,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const matchesSearch = appName.includes(query);
 
             if (isInstalled && matchesSearch) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-
-    function renderInstalledAppsInLauncher() {
-        allAppItems.forEach(item => {
-            const appId = item.getAttribute('data-app-id');
-            if (installedApps.includes(appId)) {
                 item.style.display = 'flex';
             } else {
                 item.style.display = 'none';
@@ -449,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="close-btn" title="Close"><i class="fas fa-times"></i></button>
                 </div>
             </div>
-            <div class="window-body">
+            <div class="window-body ${appId}-app">
                 ${getAppContent(appId, appName)}
             </div>
         `;
@@ -559,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const emailListContainer = windowElement.querySelector('.email-list');
         const emailContentContainer = windowElement.querySelector('.email-content');
         const statusText = windowElement.querySelector('.email-list-status');
-        
+
         // Account UI
         const createBtn = windowElement.querySelector('#mail-create-btn');
         const refreshBtn = windowElement.querySelector('#mail-refresh-btn');
@@ -575,6 +746,25 @@ document.addEventListener('DOMContentLoaded', () => {
         let messages = [];
 
         const API_URL = 'https://api.mail.tm';
+        
+        // --- PERSISTENCE LOAD (Modified) ---
+        const savedAccount = loadEmailAccount();
+        if (savedAccount) {
+            accountToken = savedAccount.token;
+            userAddress = savedAccount.address;
+
+            // Update UI to show loaded account
+            accountTitle.textContent = "Your Active Inbox";
+            addressDisplay.textContent = userAddress;
+            createForm.classList.add('hidden');
+            createBtn.classList.add('hidden');
+            refreshBtn.classList.remove('hidden');
+            statusText.textContent = 'Fetching emails...';
+            getMessages();
+        } else {
+            getDomains(); // Start by fetching domains if no account is saved
+        }
+        // --- END PERSISTENCE LOAD ---
 
         // 1. Fetch available domains for dropdown
         function getDomains() {
@@ -595,8 +785,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     addressDisplay.textContent = 'Error loading domains.';
                 });
         }
-        
-        // 2. Create a new account
+
+        // 2. Create a new account (Modified for saving)
         function createAccount() {
             const username = usernameInput.value;
             const domain = domainSelect.value;
@@ -604,12 +794,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 showModal("Error", "Please enter a username.");
                 return;
             }
-            
+
             const password = 'password123'; // Mail.tm requires a password, but we'll manage with the token
             userAddress = `${username}@${domain}`;
-            
+
             addressDisplay.textContent = 'Creating account...';
-            
+
             fetch(`${API_URL}/accounts`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -638,6 +828,9 @@ document.addEventListener('DOMContentLoaded', () => {
             .then(tokenData => {
                 if (tokenData.token) {
                     accountToken = tokenData.token;
+                    // --- SAVE ACCOUNT TO CACHE ---
+                    saveEmailAccount({ token: accountToken, address: userAddress });
+
                     // Update UI
                     accountTitle.textContent = "Your Active Inbox";
                     addressDisplay.textContent = userAddress;
@@ -655,14 +848,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 showModal("Error", `Could not create account: ${err.message}`);
             });
         }
-        
+
         // 3. Get messages from inbox
         function getMessages() {
             if (!accountToken) return;
-            
+
             statusText.textContent = 'Refreshing...';
             emailListContainer.innerHTML = ''; // Clear list
-            
+
             fetch(`${API_URL}/messages`, {
                 headers: { 'Authorization': `Bearer ${accountToken}` }
             })
@@ -684,7 +877,7 @@ document.addEventListener('DOMContentLoaded', () => {
                  statusText.textContent = `Error: ${err.message}`;
             });
         }
-        
+
         // 4. Render the list of messages
         function renderMessageList() {
             emailListContainer.innerHTML = ''; // Clear
@@ -709,11 +902,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 emailListContainer.appendChild(emailItem);
             });
         }
-        
+
         // 5. Show a single message's content
         function showMessage(id) {
             emailContentContainer.innerHTML = '<p>Loading message...</p>';
-            
+
             fetch(`${API_URL}/messages/${id}`, {
                 headers: { 'Authorization': `Bearer ${accountToken}` }
             })
@@ -742,11 +935,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 emailContentContainer.innerHTML = '<p>Error loading message.</p>';
             });
         }
-        
-        // --- Init and Event Listeners ---
+
+        // --- Event Listeners ---
         createBtn.addEventListener('click', createAccount);
         refreshBtn.addEventListener('click', getMessages);
-        getDomains(); // Start by fetching domains
     }
 
     function addWindowControlListeners(windowElement, appId) {
@@ -901,6 +1093,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 createNewWindow(appId, appName);
             }
             appLauncher.classList.add('hidden');
+            createOrToggleAppDrawer(true); // Close drawer
         });
 
         button.addEventListener('dragstart', handleDragStart);
@@ -1078,42 +1271,44 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `;
-case 'translator':
+            case 'translator':
                 return `
-                    <div class="translator-app">
-                        <div class="translator-header">
-                            <select id="translator-lang-from" class="translator-lang-select">
-                                <option value="auto">Detect Language</option>
-                                <option value="en">🇺🇸 English</option>
-                                <option value="es">🇪🇸 Spanish</option>
-                                <option value="fr">🇫🇷 French</option>
-                                <option value="de">🇩🇪 German</option>
-                                <option value="ja">🇯🇵 Japanese</option>
-                                <option value="it">🇮🇹 Italian</option>
-                                <option value="pt">🇵🇹 Portuguese</option>
-                                <option value="ru">🇷🇺 Russian</option>
-                                <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
-                                <option value="hi">🇮🇳 Hindi</option>
-                                <option value="ar">🇸🇦 Arabic</option>
-                            </select>
+                    <div class="translator-app-container">
+                        <div class="translator-io">
+                            <div class="translator-panel">
+                                <select id="translator-lang-from" class="translator-lang-select">
+                                    <option value="auto">Detect Language</option>
+                                    <option value="en" selected>🇺🇸 English</option>
+                                    <option value="es">🇪🇸 Spanish</option>
+                                    <option value="fr">🇫🇷 French</option>
+                                    <option value="de">🇩🇪 German</option>
+                                    <option value="ja">🇯🇵 Japanese</option>
+                                    <option value="it">🇮🇹 Italian</option>
+                                    <option value="pt">🇵🇹 Portuguese</option>
+                                    <option value="ru">🇷🇺 Russian</option>
+                                    <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
+                                    <option value="hi">🇮🇳 Hindi</option>
+                                    <option value="ar">🇸🇦 Arabic</option>
+                                </select>
+                                <textarea id="translator-input" class="translator-input" placeholder="Enter text..."></textarea>
+                            </div>
                             <button id="translator-swap" class="translator-swap-btn" title="Swap languages"><i class="fa-solid fa-right-left"></i></button>
-                            <select id="translator-lang-to" class="translator-lang-select">
-                                <option value="en">🇺🇸 English</option>
-                                <option value="es">🇪🇸 Spanish</option>
-                                <option value="fr">🇫🇷 French</option>
-                                <option value="de">🇩🇪 German</option>
-                                <option value="ja">🇯🇵 Japanese</option>
-                                <option value="it">🇮🇹 Italian</option>
-                                <option value="pt">🇵🇹 Portuguese</option>
-                                <option value="ru">🇷🇺 Russian</option>
-                                <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
-                                <option value="hi">🇮🇳 Hindi</option>
-                                <option value="ar">🇸🇦 Arabic</option>
-                            </select>
-                        </div>
-                        <div class="translator-body">
-                            <textarea id="translator-input" class="translator-textarea" placeholder="Enter text..."></textarea>
-                            <textarea id="translator-output" class="translator-textarea" placeholder="Translation..." readonly></textarea>
+                            <div class="translator-panel">
+                                <select id="translator-lang-to" class="translator-lang-select">
+                                    <option value="es">🇪🇸 Spanish</option>
+                                    <option value="en">🇺🇸 English</option>
+                                    <option value="fr">🇫🇷 French</option>
+                                    <option value="de">🇩🇪 German</option>
+                                    <option value="ja">🇯🇵 Japanese</option>
+                                    <option value="it">🇮🇹 Italian</option>
+                                    <option value="pt">🇵🇹 Portuguese</option>
+                                    <option value="ru">🇷🇺 Russian</option>
+                                    <option value="zh-CN">🇨🇳 Chinese (Simplified)</option>
+                                    <option value="hi">🇮🇳 Hindi</option>
+                                    <option value="ar">🇸🇦 Arabic</option>
+                                </select>
+                                <textarea id="translator-output" class="translator-output" placeholder="Translation..." readonly></textarea>
+                            </div>
                         </div>
                         <div class="translator-footer">
                             <button id="translator-translate-btn" class="translator-translate-btn">Translate</button>
@@ -1214,10 +1409,10 @@ case 'translator':
                         </div>
                     </div>
                 `;
-case 'gmail':
+            case 'gmail':
                 return `
                     <div class="gmail-app">
-                        <div class="email-sidebar">
+                        <div class="app-sidebar-panel">
                             <div class="mail-account-box">
                                 <h3 id="mail-account-title">Your Temporary Inbox</h3>
                                 <p id="mail-account-address">Loading...</p>
@@ -1232,7 +1427,7 @@ case 'gmail':
                                 <p class="email-list-status">Create an account to see emails.</p>
                             </div>
                         </div>
-                        <div class="email-content">
+                        <div class="app-main-content email-content">
                             <div class="empty-state">
                                 <i class="fas fa-envelope-open-text" style="font-size: 48px; margin-bottom: 15px;"></i>
                                 <p>Select an email from the list to read it.</p>
@@ -1891,6 +2086,47 @@ case 'gmail':
             }
         });
     }
+    
+    // --- LOAD SAVED SETTINGS ON INIT ---
+    function applySavedSettings() {
+        const settings = loadSettings();
+
+        // Apply Dark/Light Mode
+        if (settings.isLightMode === true) {
+            document.documentElement.classList.add('light-mode');
+        } else if (settings.isLightMode === false) {
+            document.documentElement.classList.remove('light-mode');
+        }
+
+        // Apply Accent Color
+        if (settings.accentColor) {
+            currentAccentColor = settings.accentColor;
+            switch (currentAccentColor) {
+                case 'green':
+                    accentColorValue = '#34a853';
+                    break;
+                case 'purple':
+                    accentColorValue = '#8e44ad';
+                    break;
+                case 'blue':
+                default:
+                    accentColorValue = '#5865F2';
+                    break;
+            }
+            document.documentElement.style.setProperty('--accent-blue', accentColorValue);
+        }
+
+        // Apply Wallpaper
+        if (settings.wallpaper) {
+            currentWallpaper = settings.wallpaper;
+            desktopContainer.style.backgroundImage = currentWallpaper;
+            desktopContainer.style.backgroundSize = 'cover';
+            desktopContainer.style.backgroundPosition = 'center';
+        }
+    }
+    
+    applySavedSettings();
+    // --- END LOAD SAVED SETTINGS ---
 
     renderInstalledAppsInLauncher();
     renderTaskbarIcons();

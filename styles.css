@@ -2020,45 +2020,268 @@ input:checked+.slider:before {
 /* --- 2. Custom Cursor Styles (New) --- */
 
 /* Hide default cursor globally on major interactive areas */
+/* Custom Cursor Styles (Cleaner Design) */
 body,
 .desktop,
 .window-body,
 .modal-overlay,
 .app-launcher,
-.context-menu {
+.context-menu,
+.app-drawer {
     cursor: none !important; 
 }
 
-/* Custom Cursor Dot */
 #custom-cursor-dot {
     position: fixed;
-    width: 6px;
-    height: 6px;
-    background-color: var(--accent-bright-blue); /* Bright color for visibility */
+    width: 4px;
+    height: 4px;
+    background-color: var(--text-primary);
     border-radius: 50%;
-    pointer-events: none; /* Crucial: ensures it doesn't block clicks */
+    pointer-events: none; 
     z-index: 10000;
     transform: translate(-50%, -50%);
     transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
 }
 
-/* Custom Cursor Outer Ring/Outline */
 #custom-cursor-outline {
     position: fixed;
-    width: 32px;
-    height: 32px;
-    border: 2px solid var(--accent-bright-blue);
+    width: 24px;
+    height: 24px;
+    border: 1px solid var(--text-primary);
     border-radius: 50%;
     pointer-events: none;
     z-index: 9999;
     transform: translate(-50%, -50%);
-    transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Springy transition */
+    opacity: 0.6;
+    transition: transform 0.2s ease-out, opacity 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;
 }
 
-/* Cursor interaction state: Make it smaller and change border color on interactive elements */
-.interactive-cursor-state #custom-cursor-outline {
-    width: 16px;
-    height: 16px;
-    border-color: var(--accent-green);
-    transform: translate(-50%, -50%) scale(1.5); /* Scale up slightly for feedback */
+:has(> .app-icon:hover, > .dock-icon:hover, > button:hover, > a:hover, > input:focus, > textarea:focus, > .window-title-bar button:hover, > .close-drawer-btn:hover) #custom-cursor-outline,
+:has(+ .app-icon:hover, + .dock-icon:hover, + button:hover, + a:hover, + input:focus, + textarea:focus, + .window-title-bar button:hover, + .close-drawer-btn:hover) #custom-cursor-outline {
+    width: 10px !important;
+    height: 10px !important;
+    opacity: 1 !important;
+    border-width: 2px !important;
+}
+
+/* App Drawer Styles */
+.app-drawer {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(20px);
+    background-color: var(--bg-glass-modal);
+    z-index: 900;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s var(--transition-fast);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.app-drawer.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.app-drawer-content {
+    background-color: var(--bg-dark);
+    border-radius: var(--border-radius-main);
+    width: 90%;
+    max-width: 900px;
+    height: 90%;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.3s var(--transition-fast), opacity 0.3s var(--transition-fast);
+}
+
+.app-drawer.open .app-drawer-content {
+    transform: scale(1);
+    opacity: 1;
+}
+
+.app-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.app-drawer-header h3 {
+    color: var(--text-primary);
+    font-size: 24px;
+}
+
+.close-drawer-btn {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: var(--border-radius-inner);
+    transition: background-color var(--transition-fast);
+}
+
+.close-drawer-btn:hover {
+    background-color: var(--icon-bg-grey);
+}
+
+.all-apps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 20px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+.app-icon-large {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--icon-bg-grey);
+    border: none;
+    border-radius: var(--border-radius-inner);
+    padding: 15px 5px;
+    color: var(--text-primary);
+    text-align: center;
+    cursor: pointer;
+    transition: transform var(--transition-fast), background-color var(--transition-fast);
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.app-icon-large:hover {
+    background-color: rgba(51, 51, 51, 0.8);
+    transform: translateY(-3px);
+}
+
+.app-icon-large i {
+    font-size: 30px;
+    margin-bottom: 8px;
+    color: var(--accent-bright-blue);
+}
+
+.app-icon-large span {
+    font-size: 12px;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    width: 100%;
+}
+
+.all-apps-button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: var(--accent-blue);
+    color: var(--white);
+    border: none;
+    border-radius: var(--border-radius-inner);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.all-apps-button:hover {
+    background-color: var(--accent-bright-blue);
+}
+
+/* Enhanced App Styles (Email & Translator) */
+.window-body.email-app,
+.window-body.translator-app {
+    padding: 0;
+    display: flex;
+    flex-direction: row;
+    background-color: transparent;
+}
+
+.app-sidebar-panel {
+    width: 280px;
+    min-width: 200px;
+    background-color: var(--bg-glass-window);
+    border-right: var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.app-main-content {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+#mail-toolbar {
+    display: flex;
+    padding: 10px;
+    gap: 10px;
+    border-bottom: var(--glass-border);
+}
+
+.email-list-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.email-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+}
+
+.email-list-item.unread {
+    border-left: 3px solid var(--accent-bright-blue);
+    font-weight: 600;
+}
+
+.translator-app-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.translator-io {
+    display: flex;
+    flex-grow: 1;
+    gap: 20px;
+    padding: 20px;
+}
+
+.translator-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.translator-input, .translator-output {
+    width: 100%;
+    height: 150px;
+    min-height: 100px;
+    padding: 15px;
+    margin-top: 10px;
+    background-color: var(--icon-bg-grey);
+    border: none;
+    border-radius: var(--border-radius-inner);
+    color: var(--text-primary);
+    font-size: 16px;
+    resize: none;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color var(--transition-fast);
+}
+
+.translator-input:focus, .translator-output:focus {
+    outline: 2px solid var(--accent-bright-blue);
+    background-color: #2a2a2a;
 }
