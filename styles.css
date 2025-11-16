@@ -2017,54 +2017,6 @@ input:checked+.slider:before {
 }
 
 
-/* --- 2. Custom Cursor Styles (New) --- */
-
-/* Hide default cursor globally on major interactive areas */
-/* Custom Cursor Styles (Cleaner Design) */
-body,
-.desktop,
-.window-body,
-.modal-overlay,
-.app-launcher,
-.context-menu,
-.app-drawer {
-    cursor: none !important; 
-}
-
-#custom-cursor-dot {
-    position: fixed;
-    width: 4px;
-    height: 4px;
-    background-color: var(--text-primary);
-    border-radius: 50%;
-    pointer-events: none; 
-    z-index: 10000;
-    transform: translate(-50%, -50%);
-    transition: transform 0.1s ease-out, opacity 0.1s ease-out;
-    box-shadow: 0 0 5px rgba(255, 255, 255, 0.4);
-}
-
-#custom-cursor-outline {
-    position: fixed;
-    width: 24px;
-    height: 24px;
-    border: 1px solid var(--text-primary);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 9999;
-    transform: translate(-50%, -50%);
-    opacity: 0.6;
-    transition: transform 0.2s ease-out, opacity 0.2s ease-out, width 0.2s ease-out, height 0.2s ease-out;
-}
-
-:has(> .app-icon:hover, > .dock-icon:hover, > button:hover, > a:hover, > input:focus, > textarea:focus, > .window-title-bar button:hover, > .close-drawer-btn:hover) #custom-cursor-outline,
-:has(+ .app-icon:hover, + .dock-icon:hover, + button:hover, + a:hover, + input:focus, + textarea:focus, + .window-title-bar button:hover, + .close-drawer-btn:hover) #custom-cursor-outline {
-    width: 10px !important;
-    height: 10px !important;
-    opacity: 1 !important;
-    border-width: 2px !important;
-}
-
 /* App Drawer Styles */
 .app-drawer {
     position: fixed;

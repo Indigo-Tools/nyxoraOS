@@ -282,34 +282,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize the Login UI
     setupLoginUI();
     // --- END OF LOGIN LOGIC ---
-    const cursorDot = document.getElementById('custom-cursor-dot');
-    const cursorOutline = document.getElementById('custom-cursor-outline');
-    // Define all elements that should trigger the interaction state
-    const interactiveElements = 'button, a, input, textarea, .window-action-btn, .dock-icon, .app-item, .context-menu-item, .email-item, .install-button, .translator-lang-select, select, .app-icon-large, .close-drawer-btn'; // Added new elements
-
-    // --- CURSOR FIX ---
-    // mousemove now handles positioning AND interaction state.
-    document.addEventListener('mousemove', (e) => {
-        if (!cursorDot || !cursorOutline) return;
-
-        cursorDot.style.left = e.clientX + 'px';
-        cursorDot.style.top = e.clientY + 'px';
-
-        // Use requestAnimationFrame for smoother outline movement
-        requestAnimationFrame(() => {
-            cursorOutline.style.left = e.clientX + 'px';
-            cursorOutline.style.top = e.clientY + 'px';
-        });
-
-        // New logic: Check on every move
-        if (e.target.closest(interactiveElements)) {
-            document.body.classList.add('interactive-cursor-state');
-        } else {
-            document.body.classList.remove('interactive-cursor-state');
-        }
-    });
-
-    // Removed the old mouseover/mouseout listeners
 
     // --- Your existing code starts here ---
     const desktopContainer = document.getElementById('desktop-container');
