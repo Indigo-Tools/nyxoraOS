@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- ACCENT COLOR DEFINITION ---
     const ACCENT_COLORS = {
         // Basic (Existing)
-        'blue': '#5865F2',
+        'blue': '#7289da',
         'green': '#34a853',
         'purple': '#8e44ad',
         'red': '#FF6347',
@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', () => {
         'maroon': '#800000',
         'skyblue': '#87CEEB',
         'crimson': '#DC143C',
-        'gold': '#FFD700',
+        'gold': '#FFD900',
         'slate': '#708090',
         'indigo': '#4B0082',
 
@@ -517,50 +517,95 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- END REPLACEMENT ---
+    // script.js (Add this function near your other helper/settings functions)
+
+    /**
+     * Generates the HTML options for the accent color dropdown.
+     * Uses the global ACCENT_COLORS map.
+     * @param {string} currentAccentColor The currently selected color name.
+     * @returns {string} The concatenated HTML string of option elements.
+     */
+    function generateAccentColorOptions(currentAccentColor) {
+        let optionsHtml = '';
+
+        // Iterate over the keys (color names) in the ACCENT_COLORS map
+        for (const colorName in ACCENT_COLORS) {
+            if (ACCENT_COLORS.hasOwnProperty(colorName)) {
+                // Capitalize the first letter for display text
+                const displayName = colorName.charAt(0).toUpperCase() + colorName.slice(1);
+
+                // Check if this option should be selected
+                const isSelected = currentAccentColor === colorName ? 'selected' : '';
+
+                // Append the option tag
+                optionsHtml += `<option value="${colorName}" ${isSelected}>${displayName}${colorName === 'blue' ? ' (Default)' : ''}</option>`;
+            }
+        }
+
+        return optionsHtml;
+    }
+    // script.js
+
+    // Ensure the generateAccentColorOptions function is defined elsewhere in script.js:
+    /*
+    function generateAccentColorOptions(currentAccentColor) {
+        let optionsHtml = '';
+        for (const colorName in ACCENT_COLORS) {
+            if (ACCENT_COLORS.hasOwnProperty(colorName)) {
+                const displayName = colorName.charAt(0).toUpperCase() + colorName.slice(1);
+                const isSelected = currentAccentColor === colorName ? 'selected' : '';
+                optionsHtml += `<option value="${colorName}" ${isSelected}>${displayName}${colorName === 'blue' ? ' (Default)' : ''}</option>`;
+            }
+        }
+        return optionsHtml;
+    }
+    */
 
     function getDisplayContent() {
         const isLightMode = document.documentElement.classList.contains('light-mode');
+
+        // NOTE: accentColorValue and currentAccentColor must be defined globally or passed in scope.
+        // They are assumed to be defined in the global scope of script.js based on previous context.
+
         return `
-            <h2>Display & Appearance</h2>
-            <div class="settings-section" data-section="display">
-                <h3>General</h3>
-                <div class="setting-row">
-                    <div class="setting-info">
-                        <p>Dark Mode</p>
-                        <small>Enable dark theme across the system and apps.</small>
-                    </div>
-                    <div class="setting-control">
-                        <label class="switch">
-                            <input type="checkbox" id="dark-mode-switch" ${isLightMode ? '' : 'checked'}>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
+        <h2>Display & Appearance</h2>
+        <div class="settings-section" data-section="display">
+            <h3>General</h3>
+            <div class="setting-row">
+                <div class="setting-info">
+                    <p>Dark Mode</p>
+                    <small>Enable dark theme across the system and apps.</small>
                 </div>
-                <div class="setting-row">
-                    <div class="setting-info">
-                        <p>Accent Color</p>
-                        <small>Choose the highlight color for interactive elements.</small>
-                    </div>
-                    <div class="setting-control">
-                        <select id="accent-color-select">
-                            <option value="blue" ${currentAccentColor === 'blue' ? 'selected' : ''}>Blue (Default)</option>
-                            <option value="green" ${currentAccentColor === 'green' ? 'selected' : ''}>Green</option>
-                            <option value="purple" ${currentAccentColor === 'purple' ? 'selected' : ''}>Purple</option>
-                        </select>
-                    </div>
-                </div>
-                <h3>Wallpaper</h3>
-                <div class="setting-row">
-                    <div class="setting-info">
-                        <p>Wallpaper Source</p>
-                        <small>Current: Custom Dark Evening</small>
-                    </div>
-                    <div class="setting-control">
-                        <button id="change-wallpaper-btn" style="background: ${accentColorValue}; color: var(--white); padding: 8px 12px; border-radius: 8px;">Change Wallpaper</button>
-                    </div>
+                <div class="setting-control">
+                    <label class="switch">
+                        <input type="checkbox" id="dark-mode-switch" ${isLightMode ? '' : 'checked'}>
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
-        `;
+            <div class="setting-row">
+                <div class="setting-info">
+                    <p>Accent Color</p>
+                    <small>Choose the highlight color for interactive elements.</small>
+                </div>
+                <div class="setting-control">
+                    <select id="accent-color-select">
+                        ${generateAccentColorOptions(currentAccentColor)}
+                    </select>
+                </div>
+            </div>
+            <h3>Wallpaper</h3>
+            <div class="setting-row">
+                <div class="setting-info">
+                    <p>Wallpaper Source</p>
+                    <small>Current: Custom Dark Evening</small>
+                </div>
+                <div class="setting-control">
+                    <button id="change-wallpaper-btn" style="background: ${accentColorValue}; color: var(--white); padding: 8px 12px; border-radius: 8px;">Change Wallpaper</button>
+                </div>
+            </div>
+        </div>
+    `;
     }
 
     function setupDisplaySettingsListeners(windowElement) {
