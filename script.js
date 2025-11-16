@@ -90,6 +90,126 @@ document.addEventListener('DOMContentLoaded', () => {
     const loginMessage = document.getElementById('login-message');
 
     let storedPassword = localStorage.getItem(PASSWORD_KEY);
+    // --- ACCENT COLOR DEFINITION ---
+    const ACCENT_COLORS = {
+        // Basic (Existing)
+        'blue': '#5865F2',
+        'green': '#34a853',
+        'purple': '#8e44ad',
+        'red': '#FF6347',
+        'orange': '#FF8C00',
+        'yellow': '#FFD700',
+        'cyan': '#00FFFF',
+        'magenta': '#FF00FF',
+        'lime': '#00FF00',
+        'pink': '#FF69B4',
+        'teal': '#008080',
+        'brown': '#A52A2A',
+        'maroon': '#800000',
+        'skyblue': '#87CEEB',
+        'crimson': '#DC143C',
+        'gold': '#FFD700',
+        'slate': '#708090',
+        'indigo': '#4B0082',
+
+        // Extended Palette (85 More)
+        'lightseagreen': '#20B2AA',
+        'darkviolet': '#9400D3',
+        'royalblue': '#4169E1',
+        'forestgreen': '#228B22',
+        'chocolate': '#D2691E',
+        'coral': '#FF7F50',
+        'darkcyan': '#008B8B',
+        'hotpink': '#FF1493',
+        'darkorange': '#FF8C00',
+        'navy': '#000080',
+        'olive': '#808000',
+        'steelblue': '#4682B4',
+        'lightgreen': '#90EE90',
+        'mediumpurple': '#9370DB',
+        'sienna': '#A0522D',
+        'plum': '#DDA0DD',
+        'khaki': '#F0E68C',
+        'lavender': '#E6E6FA',
+        'deeppink': '#FF1493',
+        'mediumorchid': '#BA55D3',
+        'firebrick': '#B22222',
+        'dodgerblue': '#1E90FF',
+        'springgreen': '#00FF7F',
+        'lightcoral': '#F08080',
+        'turquoise': '#40E0D0',
+        'darkkhaki': '#BDB76B',
+        'cadetblue': '#5F9EA0',
+        'orchid': '#DA70D6',
+        'salmon': '#FA8072',
+        'lightslategray': '#778899',
+        'mediumseagreen': '#3CB371',
+        'violet': '#EE82EE',
+        'seagreen': '#2E8B57',
+        'tomato': '#FF6347',
+        'peru': '#CD853F',
+        'lightblue': '#ADD8E6',
+        'mintcream': '#F5FFFA',
+        'thistle': '#D8BFD8',
+        'slateblue': '#6A5ACD',
+        'gainsboro': '#DCDCDC',
+        'midnightblue': '#191970',
+        'moccasin': '#FFE4B5',
+        'papayawhip': '#FFEFD5',
+        'tan': '#D2B48C',
+        'azure': '#F0FFFF',
+        'peachpuff': '#FFDAB9',
+        'bisque': '#FFE4C4',
+        'honeydew': '#F0FFF0',
+        'snow': '#FFFAFA',
+        'burlywood': '#DEB887',
+        'wheat': '#F5DEB3',
+        'cornflowerblue': '#6495ED',
+        'mediumvioletred': '#C71585',
+        'lightsteelblue': '#B0C4DE',
+        'powderblue': '#B0E0E6',
+        'rosybrown': '#BC8F8F',
+        'deeppurple': '#673AB7',
+        'amber': '#FFC107',
+        'emerald': '#50C878',
+        'charcoal': '#36454F',
+        'ruby': '#E0115F',
+        'denim': '#1560BD',
+        'celeste': '#B2FFFF',
+        'fern': '#4F7942',
+        'canary': '#FFFF99',
+        'rose': '#FF007F',
+        'onyx': '#353839',
+        'ash': '#B2BEB5',
+        'ink': '#0F0F0F',
+        'ultramarine': '#3F00FF',
+        'grape': '#6F2DA8',
+        'bubblegum': '#FFC1CC',
+        'clay': '#B66A50',
+        'sunset': '#FD5E53',
+        'pine': '#01796F',
+        'tea': '#D0F0C0',
+        'ember': '#FF6F00',
+        'rust': '#B7410E',
+        'smoke': '#738276',
+        'melon': '#FDBCB4',
+        'seafoam': '#9FE2BF',
+        'storm': '#747880',
+        'darkrose': '#B5485D',
+        'bloodorange': '#FF3F00',
+        'lagoon': '#4DFFCB',
+        'ocean': '#0277BD',
+        'gravel': '#8E8C89',
+        'champagne': '#F7E7CE',
+        'amethyst': '#9966CC',
+        'blueberry': '#4F86F7',
+        'mustard': '#FFDB58',
+        'cocoa': '#4E2A1E',
+        'ivory': '#FFFFF0',
+        'neonblue': '#1B03A3',
+        'acidgreen': '#B0BF1A',
+        'fuchsia': '#FF00FF'
+    };
 
     function setupLoginUI() {
         storedPassword = localStorage.getItem(PASSWORD_KEY);
@@ -232,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let currentAccentColor = 'blue';
     let currentWallpaper = 'url("https://images.wallpapersden.com/image/download/tree-alone-dark-evening-4k_bWZpam2UmZqaraWkpJRobWllrWdma2U.jpg")';
-    let accentColorValue = '#5865F2';
+    let accentColorValue = '#7289da';
 
     if (desktopContainer) {
         desktopContainer.style.backgroundImage = currentWallpaper;
@@ -462,21 +582,21 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // script.js (Replace the event listener block with this)
+
         if (accentColorSelect) {
             accentColorSelect.addEventListener('change', (e) => {
                 currentAccentColor = e.target.value;
 
-                switch (currentAccentColor) {
-                    case 'green':
-                        accentColorValue = '#34a853';
-                        break;
-                    case 'purple':
-                        accentColorValue = '#8e44ad';
-                        break;
-                    case 'blue':
-                    default:
-                        accentColorValue = '#5865F2';
-                        break;
+                // Look up color value in the global map
+                let accentColorValue;
+                const newAccentColorValue = ACCENT_COLORS[currentAccentColor];
+
+                if (newAccentColorValue) {
+                    accentColorValue = newAccentColorValue;
+                } else {
+                    // Fallback to blue if the color name is not found
+                    accentColorValue = ACCENT_COLORS['blue'];
                 }
 
                 document.documentElement.style.setProperty('--accent-blue', accentColorValue);
@@ -2188,17 +2308,16 @@ document.addEventListener('DOMContentLoaded', () => {
         // Apply Accent Color
         if (settings.accentColor) {
             currentAccentColor = settings.accentColor;
-            switch (currentAccentColor) {
-                case 'green':
-                    accentColorValue = '#34a853';
-                    break;
-                case 'purple':
-                    accentColorValue = '#8e44ad';
-                    break;
-                case 'blue':
-                default:
-                    accentColorValue = '#5865F2';
-                    break;
+
+            // Check if the color exists in the map
+            const newAccentColorValue = ACCENT_COLORS[currentAccentColor];
+
+            if (newAccentColorValue) {
+                // Use the mapped value
+                accentColorValue = newAccentColorValue;
+            } else {
+                // Fallback to blue if the stored color name is invalid or not found
+                accentColorValue = ACCENT_COLORS['blue'];
             }
             document.documentElement.style.setProperty('--accent-blue', accentColorValue);
         }
